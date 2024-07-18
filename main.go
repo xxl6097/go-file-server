@@ -321,6 +321,7 @@ func main() {
 		Addr:    Gcfg.Addr,
 	}
 
+	version.Version()
 	var err error
 	if Gcfg.Key != "" && Gcfg.Cert != "" {
 		err = srv.ListenAndServeTLS(Gcfg.Cert, Gcfg.Key)
