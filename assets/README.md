@@ -11,8 +11,10 @@
 
 **Binaries** can be downloaded from [this repo releases](https://github.com/codeskyblue/gohttpserver/releases/)
 
-## Requirements
-Tested with go-1.22
+## Features
+1. [x] 同名自动备份
+1. [ ] 文件分享
+1. [ ] 分享token有效期
 
 ## Screenshots
 ![screen](-/assets/imgs/gohttpserver.gif)

@@ -206,10 +206,10 @@ func (s *HTTPStaticServer) hUploadOrMkdir(w http.ResponseWriter, req *http.Reque
 
 	file, header, err := req.FormFile("file")
 
-	if _, err := os.Stat(dirpath); os.IsNotExist(err) {
-		if err := os.MkdirAll(dirpath, os.ModePerm); err != nil {
-			log.Println("Create directory:", err)
-			http.Error(w, "Directory create "+err.Error(), http.StatusInternalServerError)
+	if _, err1 := os.Stat(dirpath); os.IsNotExist(err1) {
+		if err2 := os.MkdirAll(dirpath, os.ModePerm); err2 != nil {
+			log.Println("Create directory:", err2)
+			http.Error(w, "Directory create "+err2.Error(), http.StatusInternalServerError)
 			return
 		}
 	}
@@ -247,6 +247,9 @@ func (s *HTTPStaticServer) hUploadOrMkdir(w http.ResponseWriter, req *http.Reque
 	// Large file (>32MB) will store in tmp directory
 	// The quickest operation is call os.Move instead of os.Copy
 	// Note: it seems not working well, os.Rename might be failed
+
+	//如果文件存在，则旧文件备份，以日期命名
+	BackupFile(dstPath)
 
 	var copyErr error
 	// if osFile, ok := file.(*os.File); ok && fileExists(osFile.Name()) {
