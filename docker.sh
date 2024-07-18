@@ -1,5 +1,5 @@
 #!/bin/bash
-appname=go-server-file
+appname=go-serverfile
 appversion=0.0.0
 
 function tag() {
