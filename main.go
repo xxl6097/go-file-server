@@ -251,11 +251,17 @@ func main() {
 							server.up(w, r)
 						default:
 							realPath := fmt.Sprintf(".%s", path)
+							relativePath, err := filepath.Rel(server.Prefix, path)
+							if err != nil {
+								relativePath = path
+							}
+							realPath = filepath.Join(server.Root, relativePath)
+
 							isDirOrFileExist := IsDirOrFileExist(realPath)
 							isDir := IsDir(realPath)
+							log.Println("路径", isDirOrFileExist, isDir, realPath)
 							if !isDirOrFileExist || isDir {
 								http.Error(w, http.StatusText(http.StatusUnauthorized), http.StatusUnauthorized)
-								log.Println("认证失败", isDirOrFileExist, isDir, realPath)
 							} else {
 								server.ServeHTTP(w, r)
 							}
