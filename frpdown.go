@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"log"
 	"net/http"
 	"os"
 	"path/filepath"
@@ -35,7 +36,7 @@ func check(path string) {
 	// 获取 frp 项目的发布版本信息
 	releases, err := getReleases(owner, repo)
 	if err != nil {
-		fmt.Println("Error fetching releases:", err)
+		log.Println("Error fetching releases:", err)
 		return
 	}
 
@@ -58,6 +59,7 @@ func getReleases(owner, repo string) ([]Release, error) {
 	url := fmt.Sprintf("https://api.github.com/repos/%s/%s/releases", owner, repo)
 
 	resp, err := http.Get(url)
+	log.Println("resp:", resp)
 	if err != nil {
 		return nil, err
 	}
