@@ -222,6 +222,10 @@ func main() {
 		log.Printf("plistproxy: %s", strconv.Quote(server.PlistProxy))
 	}
 
+	if os.Getenv("FRP_DOWN") == "true" {
+		go FrpcDown(Gcfg.Root)
+	}
+
 	var hdlr http.Handler = server
 
 	hdlr = accesslog.NewLoggingHandler(hdlr, logger)
