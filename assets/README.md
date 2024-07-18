@@ -15,7 +15,7 @@
 Tested with go-1.22
 
 ## Screenshots
-![screen](assets/imgs/gohttpserver.gif)
+![screen](-/assets/imgs/gohttpserver.gif)
 
 ## Usage
 
