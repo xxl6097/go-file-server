@@ -1,0 +1,8 @@
+upload: true
+delete: true
+root: ./
+title: "文件管理器"
+addr: ":8000"
+auth:
+  type: http
+  http: admin:het002402

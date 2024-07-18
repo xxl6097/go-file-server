@@ -1,0 +1,12 @@
+---
+addr: ":4000"
+title: "hello world"
+theme: green
+debug: true
+xheaders: true
+cors: true
+users:
+  - email: "xiaoli.xia@clife.cn"
+    delete: true
+    upload: true
+    token: het002402
