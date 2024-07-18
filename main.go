@@ -253,12 +253,14 @@ func main() {
 							realPath := fmt.Sprintf(".%s", path)
 							if !IsDirOrFileExist(realPath) || IsDir(realPath) {
 								http.Error(w, http.StatusText(http.StatusUnauthorized), http.StatusUnauthorized)
+								log.Println("认证失败", realPath)
 							} else {
 								server.ServeHTTP(w, r)
 							}
 						}
 					} else {
 						http.Error(w, http.StatusText(http.StatusUnauthorized), http.StatusUnauthorized)
+						log.Println("认证失败", r.URL.Path)
 					}
 				}),
 			})(hdlr)
