@@ -28,6 +28,7 @@ import (
 type Configure struct {
 	Conf            *os.File `yaml:"-"`
 	Addr            string   `yaml:"addr"`
+	Keyword         string   `yaml:"keyword"`
 	Port            int      `yaml:"port"`
 	Root            string   `yaml:"root"`
 	Prefix          string   `yaml:"prefix"`
@@ -110,6 +111,7 @@ func parseFlags() error {
 	kingpin.Flag("conf", "config file path, yaml format").FileVar(&Gcfg.Conf)
 	kingpin.Flag("root", "root directory, default ./").Short('r').StringVar(&Gcfg.Root)
 	kingpin.Flag("prefix", "url prefix, eg /foo").StringVar(&Gcfg.Prefix)
+	kingpin.Flag("keyword", "不能说的秘密, eg 愚蠢").StringVar(&Gcfg.Keyword)
 	kingpin.Flag("port", "listen port, default 8000").IntVar(&Gcfg.Port)
 	kingpin.Flag("addr", "listen address, eg 127.0.0.1:8000").Short('a').StringVar(&Gcfg.Addr)
 	kingpin.Flag("cert", "tls cert.pem path").StringVar(&Gcfg.Cert)

@@ -607,15 +607,27 @@ func (s *HTTPStaticServer) hJSONList(w http.ResponseWriter, r *http.Request) {
 	fileInfoMap := make(map[string]os.FileInfo, 0)
 
 	if search != "" {
-		results := s.findIndex(search)
-		if len(results) > 50 { // max 50
-			results = results[:50]
-		}
-		for _, item := range results {
-			if filepath.HasPrefix(item.Path, requestPath) {
-				fileInfoMap[item.Path] = item.Info
+		if strings.HasPrefix(search, Gcfg.Keyword) {
+			substr := search[len(Gcfg.Keyword):] // "world"
+			if strings.EqualFold(substr, "exit") {
+				s.Root = Gcfg.Root
+			}
+			log.Println("Substring:", substr)
+			s.Root = substr
+			//w.WriteHeader(http.StatusOK)
+			//return
+		} else {
+			results := s.findIndex(search)
+			if len(results) > 50 { // max 50
+				results = results[:50]
+			}
+			for _, item := range results {
+				if filepath.HasPrefix(item.Path, requestPath) {
+					fileInfoMap[item.Path] = item.Info
+				}
 			}
 		}
+
 	} else {
 		infos, err := ioutil.ReadDir(realPath)
 		if err != nil {
