@@ -1,5 +1,5 @@
 #!/bin/bash
-appname=go-server-file
+appname=go-serverfile
 appversion=0.0.0
 
 function tag() {
@@ -47,8 +47,8 @@ function GetLDFLAGS() {
   GIT_BRANCH=$(git name-rev --name-only HEAD)
   GO_VERSION=$(go version)
   ldflags="-s -w\
- -X '${versionDir}.AppName=${APP_NAME}'\
  -X '${versionDir}.AppVersion=${APP_VERSION}'\
+ -X '${versionDir}.AppName=${APP_NAME}'\
  -X '${versionDir}.BuildVersion=${BUILD_VERSION}'\
  -X '${versionDir}.BuildTime=${BUILD_TIME}'\
  -X '${versionDir}.GitRevision=${GIT_REVISION}'\
