@@ -21,19 +21,6 @@ Tested with go-1.22
 
 ### 一键脚本
 
-<div class="copy-code">
-    <code>这是一些代码</code>
-    <button onclick="copyCode(this)">复制</button>
-    <script>
-        function copyCode(button) {
-            const code = button.previousElementSibling;
-            navigator.clipboard.writeText(code.innerText);
-            button.innerText = "已复制";
-            setTimeout(() => button.innerText = "复制", 2000);
-        }
-    </script>
-</div>
-
 ```shell
 bash <(curl -s -S -L http://127.0.0.1:8000/up) $1 $2
 ```
