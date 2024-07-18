@@ -250,13 +250,12 @@ func main() {
 						case "/up":
 							server.up(w, r)
 						default:
-							realPath := fmt.Sprintf(".%s", path)
+							//realPath := fmt.Sprintf(".%s", path)
 							relativePath, err := filepath.Rel(server.Prefix, path)
 							if err != nil {
 								relativePath = path
 							}
-							realPath = filepath.Join(server.Root, relativePath)
-
+							realPath := filepath.Join(server.Root, relativePath)
 							isDirOrFileExist := IsDirOrFileExist(realPath)
 							isDir := IsDir(realPath)
 							log.Println("路径", isDirOrFileExist, isDir, realPath)
