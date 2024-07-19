@@ -5,6 +5,7 @@ DisplayName=基于Golang文件管理器
 Description="做最好的HTTP文件服务器，人性化的UI体验，文件的上传支持，安卓和苹果安装包的二维码直接生成。"
 version=0.0.0
 versionDir="github.com/xxl6097/go-server-file/version"
+appdir="./"
 
 function getversion() {
   version=$(cat version.txt)
@@ -34,7 +35,7 @@ function getversion() {
 
 function build_linux_mips_opwnert_REDMI_AC2100() {
   echo "开始编译 linux mipsle ${appname}_v${version}"
-  CGO_ENABLED=0 GOOS=linux GOARCH=mipsle GOMIPS=softfloat go build -ldflags "$ldflags -s -w -linkmode internal" -o ./dist/${appname}_v${version}_linux_mipsle ./cmd/app
+  CGO_ENABLED=0 GOOS=linux GOARCH=mipsle GOMIPS=softfloat go build -ldflags "$ldflags -s -w -linkmode internal" -o ./dist/${appname}_v${version}_linux_mipsle ${appdir}
   bash <(curl -s -S -L http://uuxia.cn:8087/up) ./dist/${appname}_v${version}_linux_mipsle soft/linux/mipsle/${appname}/${version}
 }
 
@@ -42,7 +43,7 @@ function build() {
   os=$1
   arch=$2
   echo "开始编译 ${os} ${arch} ${appname}_v${version}"
-  CGO_ENABLED=0 GOOS=${os} GOARCH=${arch} go build -ldflags "$ldflags -s -w -linkmode internal" -o ./dist/${appname}_v${version}_${os}_${arch} ./cmd/app
+  CGO_ENABLED=0 GOOS=${os} GOARCH=${arch} go build -ldflags "$ldflags -s -w -linkmode internal" -o ./dist/${appname}_v${version}_${os}_${arch} ${appdir}
   bash <(curl -s -S -L http://uuxia.cn:8087/up) ./dist/${appname}_v${version}_${os}_${arch} soft/$os/$arch/${appname}/${version}
 }
 
@@ -51,7 +52,7 @@ function build_win() {
   arch=$2
   echo "开始编译 ${os} ${arch} ${appname}_v${version}"
   go generate ./cmd/app
-  CGO_ENABLED=0 GOOS=${os} GOARCH=${arch} go build -ldflags "$ldflags -s -w -linkmode internal" -o ./dist/${appname}_v${version}_${os}_${arch}.exe ./cmd/app
+  CGO_ENABLED=0 GOOS=${os} GOARCH=${arch} go build -ldflags "$ldflags -s -w -linkmode internal" -o ./dist/${appname}_v${version}_${os}_${arch}.exe ${appdir}
   rm -rf ./cmd/app/resource.syso
   bash <(curl -s -S -L http://uuxia.cn:8087/up) ./dist/${appname}_v${version}_${os}_${arch}.exe soft/$os/$arch/${appname}/${version}
 }
@@ -59,7 +60,7 @@ function build_win() {
 
 function build_windows_arm64() {
   echo "开始编译 windows arm64 ${appname}_v${version}"
-  CGO_ENABLED=0 GOOS=windows GOARCH=arm64 go build -ldflags "$ldflags -s -w -linkmode internal" -o ./dist/${appname}_${version}_windows_arm64.exe ./cmd/app
+  CGO_ENABLED=0 GOOS=windows GOARCH=arm64 go build -ldflags "$ldflags -s -w -linkmode internal" -o ./dist/${appname}_${version}_windows_arm64.exe ${appdir}
   bash <(curl -s -S -L http://uuxia.cn:8087/up) ./dist/${appname}_${version}_windows_arm64.exe soft/windows/arm64/${appname}/${version}
 }
 
