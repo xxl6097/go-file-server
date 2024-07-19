@@ -612,8 +612,9 @@ func (s *HTTPStaticServer) hJSONList(w http.ResponseWriter, r *http.Request) {
 			if strings.EqualFold(substr, "exit") {
 				s.Root = Gcfg.Root
 			}
-			log.Println("Substring:", substr)
-			if IsDirOrFileExist(substr) {
+			ok := IsDirOrFileExist(substr)
+			log.Println("dir path:", ok, substr)
+			if ok {
 				s.Root = substr
 			}
 			//w.WriteHeader(http.StatusOK)
