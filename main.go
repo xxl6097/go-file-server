@@ -28,6 +28,7 @@ import (
 type Configure struct {
 	Conf            *os.File `yaml:"-"`
 	Addr            string   `yaml:"addr"`
+	Keyword         string   `yaml:"keyword"`
 	Port            int      `yaml:"port"`
 	Root            string   `yaml:"root"`
 	Prefix          string   `yaml:"prefix"`
@@ -64,12 +65,12 @@ var (
 	defaultOpenID     = "https://login.netease.com/openid"
 	Gcfg              = Configure{}
 	logger            = httpLogger{}
-
-	VERSION      = "unknown"
-	BUILDTIME    = "unknown time"
-	GITCOMMIT    = "unknown git commit"
-	SITE         = "https://github.com/codeskyblue/gohttpserver"
-	isCopyReadMe bool
+	copyFiles         = []string{".ghs.yml", ".ext", ".extent"}
+	VERSION           = "unknown"
+	BUILDTIME         = "unknown time"
+	GITCOMMIT         = "unknown git commit"
+	SITE              = "https://github.com/codeskyblue/gohttpserver"
+	isCopyReadMe      bool
 )
 
 func versionMessage() string {
@@ -110,6 +111,7 @@ func parseFlags() error {
 	kingpin.Flag("conf", "config file path, yaml format").FileVar(&Gcfg.Conf)
 	kingpin.Flag("root", "root directory, default ./").Short('r').StringVar(&Gcfg.Root)
 	kingpin.Flag("prefix", "url prefix, eg /foo").StringVar(&Gcfg.Prefix)
+	kingpin.Flag("keyword", "不能说的秘密, eg 愚蠢").StringVar(&Gcfg.Keyword)
 	kingpin.Flag("port", "listen port, default 8000").IntVar(&Gcfg.Port)
 	kingpin.Flag("addr", "listen address, eg 127.0.0.1:8000").Short('a').StringVar(&Gcfg.Addr)
 	kingpin.Flag("cert", "tls cert.pem path").StringVar(&Gcfg.Cert)
@@ -167,7 +169,19 @@ func cors(next http.Handler) http.Handler {
 	})
 }
 
-func copyReadMe(newstring string) {
+func copys() {
+	readmepath := filepath.Join(Gcfg.Root, ".ext")
+	if _, err := os.Stat(readmepath); os.IsNotExist(err) {
+		CopyFile(bytes.NewReader([]byte(extArrayContent)), readmepath)
+	}
+
+	ghspath := filepath.Join(Gcfg.Root, ".ghs.yml")
+	if _, err := os.Stat(ghspath); os.IsNotExist(err) {
+		CopyFile(bytes.NewReader([]byte(ghsContent)), ghspath)
+	}
+}
+
+func copyConfigFile(newstring string) {
 	if isCopyReadMe {
 		return
 	}
@@ -182,7 +196,11 @@ func copyReadMe(newstring string) {
 			CopyFile(bytes.NewReader([]byte(content)), readmepath)
 		}
 	}
+	copys()
+	ReadExt()
 }
+
+//go:generate goversioninfo -icon=resource/icon.ico -manifest=resource/goversioninfo.exe.manifest
 func main() {
 	if err := parseFlags(); err != nil {
 		log.Fatal(err)
@@ -199,7 +217,7 @@ func main() {
 		log.Printf("url prefix: %s", Gcfg.Prefix)
 	}
 
-	Gcfg.Title = fmt.Sprintf("%s v%s", Gcfg.Title, version.BuildVersion)
+	Gcfg.Title = fmt.Sprintf("%s %s", Gcfg.Title, version.BuildVersion)
 	server := NewHTTPStaticServer(Gcfg.Root, Gcfg.NoIndex)
 	server.Prefix = Gcfg.Prefix
 	server.Theme = Gcfg.Theme
@@ -220,6 +238,10 @@ func main() {
 	}
 	if server.PlistProxy != "" {
 		log.Printf("plistproxy: %s", strconv.Quote(server.PlistProxy))
+	}
+
+	if os.Getenv("FRP_DOWN") == "true" {
+		go FrpcDown(Gcfg.Root)
 	}
 
 	var hdlr http.Handler = server
@@ -244,8 +266,16 @@ func main() {
 						case "/up":
 							server.up(w, r)
 						default:
-							realPath := fmt.Sprintf(".%s", path)
-							if !IsDirOrFileExist(realPath) || IsDir(realPath) {
+							//realPath := fmt.Sprintf(".%s", path)
+							relativePath, err := filepath.Rel(server.Prefix, path)
+							if err != nil {
+								relativePath = path
+							}
+							realPath := filepath.Join(server.Root, relativePath)
+							isDirOrFileExist := IsDirOrFileExist(realPath)
+							isDir := IsDir(realPath)
+							log.Println("路径", isDirOrFileExist, isDir, realPath)
+							if !isDirOrFileExist || isDir {
 								http.Error(w, http.StatusText(http.StatusUnauthorized), http.StatusUnauthorized)
 							} else {
 								server.ServeHTTP(w, r)
@@ -253,6 +283,7 @@ func main() {
 						}
 					} else {
 						http.Error(w, http.StatusText(http.StatusUnauthorized), http.StatusUnauthorized)
+						log.Println("认证失败", r.URL.Path)
 					}
 				}),
 			})(hdlr)
@@ -311,6 +342,7 @@ func main() {
 		Addr:    Gcfg.Addr,
 	}
 
+	version.Version()
 	var err error
 	if Gcfg.Key != "" && Gcfg.Cert != "" {
 		err = srv.ListenAndServeTLS(Gcfg.Cert, Gcfg.Key)

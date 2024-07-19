@@ -10,3 +10,9 @@ var assetsFS embed.FS
 
 // Assets contains project assets.
 var Assets = http.FS(assetsFS)
+
+//go:embed assets/.ext
+var extArrayContent string
+
+//go:embed assets/.ghs.yml
+var ghsContent string

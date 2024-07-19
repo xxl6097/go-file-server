@@ -1,0 +1,7 @@
+accessTables:
+- regex: block.file
+  allow: false
+- regex: visual.file
+  allow: true
+- regex: .ext
+  allow: true

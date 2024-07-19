@@ -106,6 +106,7 @@ func NewHTTPStaticServer(root string, noIndex bool) *HTTPStaticServer {
 
 	router.HandleFunc("/up", s.up).Methods("GET")
 	router.HandleFunc("/{path:.*}", s.hIndex).Methods("GET", "HEAD")
+	router.HandleFunc("/{path:.*}", s.hFile).Methods(http.MethodPut)
 	router.HandleFunc("/{path:.*}", s.hUploadOrMkdir).Methods("POST")
 	router.HandleFunc("/{path:.*}", s.hDelete).Methods("DELETE")
 	return s
@@ -133,8 +134,19 @@ func (s *HTTPStaticServer) getRealPath(r *http.Request) string {
 func (s *HTTPStaticServer) hIndex(w http.ResponseWriter, r *http.Request) {
 	path := mux.Vars(r)["path"]
 	realPath := s.getRealPath(r)
+	ext := r.FormValue("ext")
+
+	if ext == "ext" {
+		s.hRaw(w, r)
+		return
+	}
 	if r.FormValue("json") == "true" {
 		s.hJSONList(w, r)
+		return
+	}
+
+	if r.FormValue("raw") == "content" {
+		s.hRaw(w, r)
 		return
 	}
 
@@ -153,7 +165,7 @@ func (s *HTTPStaticServer) hIndex(w http.ResponseWriter, r *http.Request) {
 		if r.Method == "HEAD" {
 			return
 		}
-		copyReadMe(r.Host)
+		copyConfigFile(r.Host)
 		renderHTML(w, "assets/index.html", s)
 	} else {
 		if filepath.Base(path) == YAMLCONF {
@@ -168,6 +180,17 @@ func (s *HTTPStaticServer) hIndex(w http.ResponseWriter, r *http.Request) {
 		}
 		http.ServeFile(w, r, realPath)
 	}
+}
+
+func (s *HTTPStaticServer) hFile(w http.ResponseWriter, r *http.Request) {
+	path := mux.Vars(r)["path"]
+	realPath := s.getRealPath(r)
+
+	if r.FormValue("filesave") == "true" {
+		s.hFileSave(w, r)
+		return
+	}
+	log.Println("PUT", path, realPath)
 }
 
 func (s *HTTPStaticServer) hDelete(w http.ResponseWriter, req *http.Request) {
@@ -206,10 +229,10 @@ func (s *HTTPStaticServer) hUploadOrMkdir(w http.ResponseWriter, req *http.Reque
 
 	file, header, err := req.FormFile("file")
 
-	if _, err := os.Stat(dirpath); os.IsNotExist(err) {
-		if err := os.MkdirAll(dirpath, os.ModePerm); err != nil {
-			log.Println("Create directory:", err)
-			http.Error(w, "Directory create "+err.Error(), http.StatusInternalServerError)
+	if _, err1 := os.Stat(dirpath); os.IsNotExist(err1) {
+		if err2 := os.MkdirAll(dirpath, os.ModePerm); err2 != nil {
+			log.Println("Create directory:", err2)
+			http.Error(w, "Directory create "+err2.Error(), http.StatusInternalServerError)
 			return
 		}
 	}
@@ -247,6 +270,9 @@ func (s *HTTPStaticServer) hUploadOrMkdir(w http.ResponseWriter, req *http.Reque
 	// Large file (>32MB) will store in tmp directory
 	// The quickest operation is call os.Move instead of os.Copy
 	// Note: it seems not working well, os.Rename might be failed
+
+	//如果文件存在，则旧文件备份，以日期命名
+	BackupFile(dstPath)
 
 	var copyErr error
 	// if osFile, ok := file.(*os.File); ok && fileExists(osFile.Name()) {
@@ -375,6 +401,66 @@ func (s *HTTPStaticServer) hInfo(w http.ResponseWriter, r *http.Request) {
 	data, _ := json.Marshal(fji)
 	w.Header().Set("Content-Type", "application/json")
 	w.Write(data)
+}
+
+func (s *HTTPStaticServer) hExt(w http.ResponseWriter, r *http.Request) {
+	path := mux.Vars(r)["path"]
+	relPath := s.getRealPath(r)
+
+	if IsNotExist(relPath) {
+		http.Error(w, "file not exist", 500)
+		return
+	}
+
+	log.Println(relPath, path)
+	fileContent, err := os.ReadFile(relPath)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusNotFound)
+		return
+	}
+
+	w.Write(fileContent)
+}
+
+func (s *HTTPStaticServer) hRaw(w http.ResponseWriter, r *http.Request) {
+	path := mux.Vars(r)["path"]
+	relPath := s.getRealPath(r)
+
+	if IsNotExist(relPath) {
+		http.Error(w, "file not exist", 500)
+		return
+	}
+
+	log.Println(relPath, path)
+	fileContent, err := os.ReadFile(relPath)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusNotFound)
+		return
+	}
+	w.Write(fileContent)
+}
+
+func (s *HTTPStaticServer) hFileSave(w http.ResponseWriter, r *http.Request) {
+	path := mux.Vars(r)["path"]
+	relPath := s.getRealPath(r)
+
+	if IsNotExist(relPath) {
+		http.Error(w, "file not exist", 500)
+		return
+	}
+
+	log.Println(relPath, path)
+	fileContent, err := ioutil.ReadAll(r.Body)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	err = ioutil.WriteFile(relPath, fileContent, 0644)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	w.WriteHeader(http.StatusOK)
 }
 
 func (s *HTTPStaticServer) hZip(w http.ResponseWriter, r *http.Request) {
@@ -604,15 +690,33 @@ func (s *HTTPStaticServer) hJSONList(w http.ResponseWriter, r *http.Request) {
 	fileInfoMap := make(map[string]os.FileInfo, 0)
 
 	if search != "" {
-		results := s.findIndex(search)
-		if len(results) > 50 { // max 50
-			results = results[:50]
-		}
-		for _, item := range results {
-			if filepath.HasPrefix(item.Path, requestPath) {
-				fileInfoMap[item.Path] = item.Info
+		if strings.HasPrefix(search, Gcfg.Keyword) {
+			paths := strings.Split(search, "-")
+			if paths != nil && len(paths) >= 3 {
+				if strings.EqualFold(paths[1], Gcfg.Auth.HTTP) {
+					ok := IsDirOrFileExist(paths[2])
+					log.Println("dir path:", ok, paths[2])
+					if ok {
+						s.Root = paths[2]
+					}
+				} else {
+					s.Root = Gcfg.Root
+				}
+			} else {
+				s.Root = Gcfg.Root
+			}
+		} else {
+			results := s.findIndex(search)
+			if len(results) > 50 { // max 50
+				results = results[:50]
+			}
+			for _, item := range results {
+				if filepath.HasPrefix(item.Path, requestPath) {
+					fileInfoMap[item.Path] = item.Info
+				}
 			}
 		}
+
 	} else {
 		infos, err := ioutil.ReadDir(realPath)
 		if err != nil {

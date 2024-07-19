@@ -4,7 +4,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-  <meta name="theme-color" content="#000000">  
+  <meta name="theme-color" content="#000000">
   <title>[[.Title]]</title>
   <link rel="shortcut icon" type="image/png" href="[[.Prefix]]/-/assets/favicon.png" />
   <link rel="stylesheet" type="text/css" href="[[.Prefix]]/-/assets/bootstrap-3.3.5/css/bootstrap.min.css">
@@ -175,10 +175,23 @@
                 <a class="btn btn-default btn-xs visible-xs" v-if="shouldHaveQrcode(f.name)" href="{{genInstallURL(f.name)}}">
                   Install <i class="fa fa-cube"></i>
                 </a>
+                <template v-if="isTextFile(f) == 'true'">
+                  <button class="btn btn-default btn-xs" v-on:click="loadFile(f)">
+                    <span class="glyphicon glyphicon-edit"></span>
+                  </button>
+                </template>
+
+<!--                <button class="btn btn-default btn-xs" v-on:click="loadFile(f)">-->
+<!--                  <span class="glyphicon glyphicon-edit"></span>-->
+<!--                </button>-->
                 <button class="btn btn-default btn-xs" v-if="auth.delete" v-on:click="deletePathConfirm(f, $event)">
                   <span style="color:#CC3300" class="glyphicon glyphicon-trash"></span>
                 </button>
               </template>
+
+
+
+
             </td>
           </tr>
         </tbody>
@@ -256,6 +269,33 @@
           </div>
         </div>
       </div>
+
+      <!-- File content modal start -->
+      <div id="file-raw-modal" class="modal fade" tabindex="-1" role="dialog">
+        <div class="modal-dialog edit-dialog">
+          <div class="modal-content">
+            <div class="modal-header">
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+              <h4 class="modal-title">
+                <span id="file-raw-title"></span>
+              </h4>
+            </div>
+            <div class="modal-body">
+              <textarea id="file-raw-content"></textarea>
+            </div>
+
+            <div class="modal-footer">
+              <button type="button" class="btn btn-default" @click="saveFile">Save</button>
+              <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+
+          </div>
+        </div>
+      </div>
+      <!-- File content modal end -->
+
+
+
     </div>
     <div class="col-md-12">
       <div id="footer" class="pull-right" style="margin: 2em 1em">

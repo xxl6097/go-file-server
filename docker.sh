@@ -1,5 +1,5 @@
 #!/bin/bash
-appname=go-server-file
+appname=go-serverfile
 appversion=0.0.0
 
 function tag() {
@@ -21,9 +21,9 @@ function getversion() {
     v3=$(echo $appversion | awk -F'.' '{print($3);}')
     v2=$(echo $appversion | awk -F'.' '{print($2);}')
     v1=$(echo $appversion | awk -F'.' '{print($1);}')
-    if [[ $(expr $v3 \>= 9) == 1 ]]; then
+    if [[ $(expr $v3 \>= 99) == 1 ]]; then
       v3=0
-      if [[ $(expr $v2 \>= 9) == 1 ]]; then
+      if [[ $(expr $v2 \>= 99) == 1 ]]; then
         v2=0
         v1=$(expr $v1 + 1)
       else
@@ -47,8 +47,8 @@ function GetLDFLAGS() {
   GIT_BRANCH=$(git name-rev --name-only HEAD)
   GO_VERSION=$(go version)
   ldflags="-s -w\
- -X '${versionDir}.AppName=${APP_NAME}'\
  -X '${versionDir}.AppVersion=${APP_VERSION}'\
+ -X '${versionDir}.AppName=${APP_NAME}'\
  -X '${versionDir}.BuildVersion=${BUILD_VERSION}'\
  -X '${versionDir}.BuildTime=${BUILD_TIME}'\
  -X '${versionDir}.GitRevision=${GIT_REVISION}'\

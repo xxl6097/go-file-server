@@ -9,7 +9,10 @@ import (
 	"io/ioutil"
 	"os"
 	"path/filepath"
+	"time"
 )
+
+const timezone = "Asia/Shanghai"
 
 func FileExists(path string) bool {
 	info, err := os.Stat(path)
@@ -121,4 +124,21 @@ func UnzipFile(filename, dest string) error {
 		}
 	}
 	return nil
+}
+
+func GetFileNameWithTime() string {
+	//loc, _ := time.LoadLocation("Asia/Shanghai")
+	//return time.Now().In(loc).Format("20060102150405")
+	return GetTimeFormat("20060102150405")
+}
+
+func GetTimeFormat(format string) string {
+	location, err := time.LoadLocation(timezone)
+	if err != nil {
+		location = time.FixedZone("CST", 8*3600) //替换上海时区方式
+	}
+	date := time.Now()
+	date.In(location)
+	return date.Format(format)
+
 }

@@ -43,8 +43,10 @@ var vm = new Vue({
       email: "",
       name: "",
     },
+    item: {},
     location: window.location,
     breadcrumb: [],
+    exts: [],
     showHidden: false,
     previewMode: false,
     preview: {
@@ -69,6 +71,32 @@ var vm = new Vue({
     computedFiles: function () {
       var that = this;
       that.preview.filename = null;
+
+      let array = [1, 2, 3, 4, 5];
+      let index = array.indexOf(6); // 返回 2
+      let exists = index !== -1; // 返回 true
+      console.log('computedFiles',index,exists)
+
+      var that = this
+      $.ajax({
+        url: '/.ext',
+        method: 'GET',
+        data: {
+          ext: "ext"
+        },
+        success: function (res) {
+          let lines = res.split('\n');
+          let cleanedLines = lines.map(line => line.replace(/\r$/, ''));
+          console.log(cleanedLines);
+          that.exts = cleanedLines;
+          let index = that.exts.indexOf('js'); // 返回 2
+          let exists = index !== -1; // 返回 true
+          console.log('js',index,exists,exists1)
+        },
+        error: function (err) {
+          console.log(err)
+        }
+      })
 
       var files = this.files.filter(function (f) {
         if (f.name == 'README.md') {
@@ -239,6 +267,27 @@ var vm = new Vue({
       }
       return "fa-file-text-o"
     },
+    isTextFile: function (f) {
+      if (f.type == "dir") {
+        if (f.name == '.git') {
+          return 'false';
+        }
+        return 'false';
+      }
+      if (f.name == '.ext'){
+        return 'true';
+      }
+      var ext = getExtention(f.name);
+      let index = this.exts.indexOf(ext); // 返回 2
+      let exists = index !== -1; // 返回 true
+      //console.log('js',index,exists)
+      if (exists){
+        return 'true';
+      }else{
+        return 'false';
+      }
+
+    },
     clickFileOrDir: function (f, e) {
       var reqPath = this.getEncodePath(f.name)
       // TODO: fix here tomorrow
@@ -254,7 +303,7 @@ var vm = new Vue({
       e.preventDefault()
     },
     showInfo: function (f) {
-      console.log(f);
+      console.log('showInfo',f,this.getEncodePath(f.name));
       $.ajax({
         url: this.getEncodePath(f.name),
         data: {
@@ -266,6 +315,47 @@ var vm = new Vue({
           $("#file-info-content").text(JSON.stringify(res, null, 4));
           $("#file-info-modal").modal("show");
           // console.log(JSON.stringify(res, null, 4));
+        },
+        error: function (jqXHR, textStatus, errorThrown) {
+          showErrorMessage(jqXHR)
+        }
+      })
+    },
+    loadFile: function (f) {
+      console.log(f);
+      this.item = Object.assign({}, f);
+      $.ajax({
+        url: this.getEncodePath(f.name),
+        data: {
+          raw: "content",
+        },
+        method: "GET",
+        success: function (res) {
+          $("#file-raw-title").text(f.name);
+          $("#file-raw-content").text(res);
+          $("#file-raw-modal").modal("show");
+          // console.log(JSON.stringify(res, null, 4));
+        },
+        error: function (jqXHR, textStatus, errorThrown) {
+          showErrorMessage(jqXHR)
+        }
+      })
+    },
+    saveFile: function () {
+      console.log('saveFile:', this.item);
+      // $("#file-raw-modal").modal("dismiss");
+      $('#file-raw-modal').modal('hide');
+      var textToUpload = $('#file-raw-content').val();
+      console.log('text',textToUpload)
+      var apipath = this.getEncodePath(this.item.name) + "?filesave=true";
+      $.ajax({
+        url: apipath,
+        dataType: "text",
+        data: textToUpload,
+        contentType: 'text/plain',
+        method: "PUT",
+        success: function (res) {
+          console.log('saveFile.success', res);
         },
         error: function (jqXHR, textStatus, errorThrown) {
           showErrorMessage(jqXHR)

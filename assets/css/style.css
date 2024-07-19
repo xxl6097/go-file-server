@@ -6,22 +6,50 @@ body {
     margin-bottom: 1em;
 }
 
-
-/* Light Mode */
-@media (prefers-color-scheme: light) {
-    body {
-        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
-    }
+textarea {
+    width: 100%;
+    height: 500px;
+    margin: 10px auto;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    resize: vertical;
+    font-size: 16px;
 }
 
-/* Dark Mode */
-@media (prefers-color-scheme: dark) {
-    body {
-        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
-        /*background-color: black;*/
-        /*color: white;*/
-    }
+textarea:focus {
+    outline: none;
+    border-color: #4a90e2;
+    box-shadow: 0 0 8px rgba(74, 144, 226, 0.2);
 }
+
+textarea::placeholder {
+    color: #bbb;
+}
+
+.save {
+    float: right;
+    margin-bottom: 60px;
+}
+.edit-dialog {
+    width: 80%;
+}
+
+/*!* Light Mode *!*/
+/*@media (prefers-color-scheme: light) {*/
+/*    body {*/
+/*        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";*/
+/*    }*/
+/*}*/
+
+/*!* Dark Mode *!*/
+/*@media (prefers-color-scheme: dark) {*/
+/*    body {*/
+/*        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";*/
+/*        !*background-color: black;*!*/
+/*        !*color: white;*!*/
+/*    }*/
+/*}*/
 
 /* Not used */
 
