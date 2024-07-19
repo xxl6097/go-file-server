@@ -619,6 +619,8 @@ func (s *HTTPStaticServer) hJSONList(w http.ResponseWriter, r *http.Request) {
 				} else {
 					s.Root = Gcfg.Root
 				}
+			} else {
+				s.Root = Gcfg.Root
 			}
 		} else {
 			results := s.findIndex(search)
