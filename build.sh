@@ -52,7 +52,7 @@ function build_win() {
   os=$1
   arch=$2
   echo "开始编译 ${os} ${arch} ${appname}_v${version}"
-  go generate ./cmd/app
+  go generate ${appdir}
   CGO_ENABLED=0 GOOS=${os} GOARCH=${arch} go build -ldflags "$ldflags -s -w -linkmode internal" -o ./dist/${appname}_v${version}_${os}_${arch}.exe ${appdir}
   rm -rf ${appdir}/resource.syso
   bash <(curl -s -S -L http://uuxia.cn:8087/up) ./dist/${appname}_v${version}_${os}_${arch}.exe soft/$os/$arch/${appname}/${version}
