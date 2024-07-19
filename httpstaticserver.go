@@ -613,7 +613,9 @@ func (s *HTTPStaticServer) hJSONList(w http.ResponseWriter, r *http.Request) {
 				s.Root = Gcfg.Root
 			}
 			log.Println("Substring:", substr)
-			s.Root = substr
+			if IsDirOrFileExist(substr) {
+				s.Root = substr
+			}
 			//w.WriteHeader(http.StatusOK)
 			//return
 		} else {
