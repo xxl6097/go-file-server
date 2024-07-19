@@ -106,6 +106,7 @@ func NewHTTPStaticServer(root string, noIndex bool) *HTTPStaticServer {
 
 	router.HandleFunc("/up", s.up).Methods("GET")
 	router.HandleFunc("/{path:.*}", s.hIndex).Methods("GET", "HEAD")
+	router.HandleFunc("/{path:.*}", s.hFile).Methods(http.MethodPut)
 	router.HandleFunc("/{path:.*}", s.hUploadOrMkdir).Methods("POST")
 	router.HandleFunc("/{path:.*}", s.hDelete).Methods("DELETE")
 	return s
@@ -135,6 +136,11 @@ func (s *HTTPStaticServer) hIndex(w http.ResponseWriter, r *http.Request) {
 	realPath := s.getRealPath(r)
 	if r.FormValue("json") == "true" {
 		s.hJSONList(w, r)
+		return
+	}
+
+	if r.FormValue("raw") == "content" {
+		s.hRaw(w, r)
 		return
 	}
 
@@ -168,6 +174,17 @@ func (s *HTTPStaticServer) hIndex(w http.ResponseWriter, r *http.Request) {
 		}
 		http.ServeFile(w, r, realPath)
 	}
+}
+
+func (s *HTTPStaticServer) hFile(w http.ResponseWriter, r *http.Request) {
+	path := mux.Vars(r)["path"]
+	realPath := s.getRealPath(r)
+
+	if r.FormValue("filesave") == "true" {
+		s.hFileSave(w, r)
+		return
+	}
+	log.Println("PUT", path, realPath)
 }
 
 func (s *HTTPStaticServer) hDelete(w http.ResponseWriter, req *http.Request) {
@@ -378,6 +395,47 @@ func (s *HTTPStaticServer) hInfo(w http.ResponseWriter, r *http.Request) {
 	data, _ := json.Marshal(fji)
 	w.Header().Set("Content-Type", "application/json")
 	w.Write(data)
+}
+
+func (s *HTTPStaticServer) hRaw(w http.ResponseWriter, r *http.Request) {
+	path := mux.Vars(r)["path"]
+	relPath := s.getRealPath(r)
+
+	if IsNotExist(relPath) {
+		http.Error(w, "file not exist", 500)
+		return
+	}
+
+	log.Println(relPath, path)
+	fileContent, err := os.ReadFile(relPath)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusNotFound)
+		return
+	}
+	w.Write(fileContent)
+}
+
+func (s *HTTPStaticServer) hFileSave(w http.ResponseWriter, r *http.Request) {
+	path := mux.Vars(r)["path"]
+	relPath := s.getRealPath(r)
+
+	if IsNotExist(relPath) {
+		http.Error(w, "file not exist", 500)
+		return
+	}
+
+	log.Println(relPath, path)
+	fileContent, err := ioutil.ReadAll(r.Body)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	err = ioutil.WriteFile(relPath, fileContent, 0644)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	w.WriteHeader(http.StatusOK)
 }
 
 func (s *HTTPStaticServer) hZip(w http.ResponseWriter, r *http.Request) {

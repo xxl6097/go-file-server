@@ -43,6 +43,7 @@ var vm = new Vue({
       email: "",
       name: "",
     },
+    item: {},
     location: window.location,
     breadcrumb: [],
     showHidden: false,
@@ -254,7 +255,7 @@ var vm = new Vue({
       e.preventDefault()
     },
     showInfo: function (f) {
-      console.log(f);
+      console.log('showInfo',f,this.getEncodePath(f.name));
       $.ajax({
         url: this.getEncodePath(f.name),
         data: {
@@ -266,6 +267,47 @@ var vm = new Vue({
           $("#file-info-content").text(JSON.stringify(res, null, 4));
           $("#file-info-modal").modal("show");
           // console.log(JSON.stringify(res, null, 4));
+        },
+        error: function (jqXHR, textStatus, errorThrown) {
+          showErrorMessage(jqXHR)
+        }
+      })
+    },
+    loadFile: function (f) {
+      console.log(f);
+      this.item = Object.assign({}, f);
+      $.ajax({
+        url: this.getEncodePath(f.name),
+        data: {
+          raw: "content",
+        },
+        method: "GET",
+        success: function (res) {
+          $("#file-raw-title").text(f.name);
+          $("#file-raw-content").text(res);
+          $("#file-raw-modal").modal("show");
+          // console.log(JSON.stringify(res, null, 4));
+        },
+        error: function (jqXHR, textStatus, errorThrown) {
+          showErrorMessage(jqXHR)
+        }
+      })
+    },
+    saveFile: function () {
+      console.log('saveFile:', this.item);
+      // $("#file-raw-modal").modal("dismiss");
+      $('#file-raw-modal').modal('hide');
+      var textToUpload = $('#file-raw-content').val();
+      console.log('text',textToUpload)
+      var apipath = this.getEncodePath(this.item.name) + "?filesave=true";
+      $.ajax({
+        url: apipath,
+        dataType: "text",
+        data: textToUpload,
+        contentType: 'text/plain',
+        method: "PUT",
+        success: function (res) {
+          console.log('saveFile.success', res);
         },
         error: function (jqXHR, textStatus, errorThrown) {
           showErrorMessage(jqXHR)
