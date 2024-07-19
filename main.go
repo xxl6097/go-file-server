@@ -185,6 +185,8 @@ func copyReadMe(newstring string) {
 		}
 	}
 }
+
+//go:generate goversioninfo -icon=resource/icon.ico -manifest=resource/goversioninfo.exe.manifest
 func main() {
 	if err := parseFlags(); err != nil {
 		log.Fatal(err)
