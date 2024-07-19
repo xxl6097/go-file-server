@@ -16,6 +16,7 @@
 1. [ ] 文件分享
 1. [ ] 分享token有效期
 1. [ ] 同时支持多文件上传
+1. [ ] 文件编辑
 
 ## Screenshots
 ![screen](-/assets/imgs/gohttpserver.gif)
