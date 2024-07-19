@@ -203,7 +203,7 @@ func main() {
 		log.Printf("url prefix: %s", Gcfg.Prefix)
 	}
 
-	Gcfg.Title = fmt.Sprintf("%s v%s", Gcfg.Title, version.BuildVersion)
+	Gcfg.Title = fmt.Sprintf("%s %s", Gcfg.Title, version.BuildVersion)
 	server := NewHTTPStaticServer(Gcfg.Root, Gcfg.NoIndex)
 	server.Prefix = Gcfg.Prefix
 	server.Theme = Gcfg.Theme
