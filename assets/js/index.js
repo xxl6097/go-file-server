@@ -240,6 +240,41 @@ var vm = new Vue({
       }
       return "fa-file-text-o"
     },
+    isTextFile: function (f) {
+      if (f.type == "dir") {
+        if (f.name == '.git') {
+          return 'false';
+        }
+        return 'false';
+      }
+      var ext = getExtention(f.name);
+      switch (ext) {
+        case "go":
+        case "py":
+        case "js":
+        case "sh":
+        case "sum":
+        case "mod":
+        case "md":
+        case "txt":
+        case "yaml":
+        case "yml":
+        case "ini":
+        case "java":
+        case "json":
+        case "xml":
+        case "log":
+        case "rs":
+        case "sql":
+        case "html":
+        case "bat":
+        case "c":
+        case "cpp":
+        case "h":
+          return 'true';
+      }
+      return 'false';
+    },
     clickFileOrDir: function (f, e) {
       var reqPath = this.getEncodePath(f.name)
       // TODO: fix here tomorrow

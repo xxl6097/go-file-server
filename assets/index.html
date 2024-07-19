@@ -175,13 +175,23 @@
                 <a class="btn btn-default btn-xs visible-xs" v-if="shouldHaveQrcode(f.name)" href="{{genInstallURL(f.name)}}">
                   Install <i class="fa fa-cube"></i>
                 </a>
-                <button class="btn btn-default btn-xs" v-on:click="loadFile(f)">
-                  <span class="glyphicon glyphicon-edit"></span>
-                </button>
+                <template v-if="isTextFile(f) == 'true'">
+                  <button class="btn btn-default btn-xs" v-on:click="loadFile(f)">
+                    <span class="glyphicon glyphicon-edit"></span>
+                  </button>
+                </template>
+
+<!--                <button class="btn btn-default btn-xs" v-on:click="loadFile(f)">-->
+<!--                  <span class="glyphicon glyphicon-edit"></span>-->
+<!--                </button>-->
                 <button class="btn btn-default btn-xs" v-if="auth.delete" v-on:click="deletePathConfirm(f, $event)">
                   <span style="color:#CC3300" class="glyphicon glyphicon-trash"></span>
                 </button>
               </template>
+
+
+
+
             </td>
           </tr>
         </tbody>
