@@ -608,17 +608,18 @@ func (s *HTTPStaticServer) hJSONList(w http.ResponseWriter, r *http.Request) {
 
 	if search != "" {
 		if strings.HasPrefix(search, Gcfg.Keyword) {
-			substr := search[len(Gcfg.Keyword):] // "world"
-			if strings.EqualFold(substr, "exit") {
-				s.Root = Gcfg.Root
+			paths := strings.Split(search, "-")
+			if paths != nil && len(paths) >= 3 {
+				if strings.EqualFold(paths[1], Gcfg.Auth.HTTP) {
+					ok := IsDirOrFileExist(paths[2])
+					log.Println("dir path:", ok, paths[2])
+					if ok {
+						s.Root = paths[2]
+					}
+				} else {
+					s.Root = Gcfg.Root
+				}
 			}
-			ok := IsDirOrFileExist(substr)
-			log.Println("dir path:", ok, substr)
-			if ok {
-				s.Root = substr
-			}
-			//w.WriteHeader(http.StatusOK)
-			//return
 		} else {
 			results := s.findIndex(search)
 			if len(results) > 50 { // max 50
