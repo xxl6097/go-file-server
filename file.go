@@ -39,7 +39,6 @@ func BackupFile(path string) {
 		}
 	}
 }
-
 func ReadExt() []string {
 	// 打开文件
 	file, err := os.Open("./.ext")

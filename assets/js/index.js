@@ -286,7 +286,6 @@ var vm = new Vue({
       }else{
         return 'false';
       }
-
     },
     clickFileOrDir: function (f, e) {
       var reqPath = this.getEncodePath(f.name)

@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <assembly xmlns="urn:schemas-microsoft-com:asm.v1" manifestVersion="1.0">
   <assemblyIdentity
@@ -15,4 +16,23 @@
        </requestedPrivileges>
    </security>
  </trustInfo>
+=======
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<assembly xmlns="urn:schemas-microsoft-com:asm.v1" manifestVersion="1.0">
+  <assemblyIdentity
+    type="win32"
+    name="Github.com.JosephSpurrier.GoVersionInfo"
+    version="1.0.0.0"
+    processorArchitecture="*"/>
+ <description>AAServiceTest exe</description>
+ <trustInfo xmlns="urn:schemas-microsoft-com:asm.v3">
+   <security>
+     <requestedPrivileges>
+       <requestedExecutionLevel
+         level="requireAdministrator"
+         uiAccess="false"/>
+       </requestedPrivileges>
+   </security>
+ </trustInfo>
+>>>>>>> 5c48ac6141d634e3ec538a796fea0034c45528dd
 </assembly>
