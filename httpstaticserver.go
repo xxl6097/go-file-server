@@ -58,6 +58,7 @@ type HTTPStaticServer struct {
 	AuthType         string
 	DeepPathMaxDepth int
 	NoIndex          bool
+	NoLogin          bool
 
 	indexes []IndexFileItem
 	m       *mux.Router

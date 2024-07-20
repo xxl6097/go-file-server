@@ -39,6 +39,7 @@ type Configure struct {
 	XHeaders        bool     `yaml:"xheaders"`
 	Upload          bool     `yaml:"upload"`
 	Delete          bool     `yaml:"delete"`
+	NoLogin         bool     `yaml:"nologin"`
 	PlistProxy      string   `yaml:"plistproxy"`
 	Title           string   `yaml:"title"`
 	Debug           bool     `yaml:"debug"`
@@ -122,6 +123,7 @@ func parseFlags() error {
 	kingpin.Flag("theme", "web theme, one of <black|green>").StringVar(&Gcfg.Theme)
 	kingpin.Flag("upload", "enable upload support").BoolVar(&Gcfg.Upload)
 	kingpin.Flag("delete", "enable delete support").BoolVar(&Gcfg.Delete)
+	kingpin.Flag("nologin", "nologin").BoolVar(&Gcfg.NoLogin)
 	kingpin.Flag("xheaders", "used when behide nginx").BoolVar(&Gcfg.XHeaders)
 	kingpin.Flag("debug", "enable debug mode").BoolVar(&Gcfg.Debug)
 	kingpin.Flag("plistproxy", "plist proxy when server is not https").Short('p').StringVar(&Gcfg.PlistProxy)
@@ -226,6 +228,7 @@ func main() {
 	server.Upload = Gcfg.Upload
 	server.Delete = Gcfg.Delete
 	server.AuthType = Gcfg.Auth.Type
+	server.NoLogin = Gcfg.NoLogin
 	server.DeepPathMaxDepth = Gcfg.DeepPathMaxDepth
 
 	if Gcfg.PlistProxy != "" {
