@@ -136,6 +136,12 @@ func (s *HTTPStaticServer) hIndex(w http.ResponseWriter, r *http.Request) {
 	path := mux.Vars(r)["path"]
 	realPath := s.getRealPath(r)
 	ext := r.FormValue("ext")
+	sysinfo := r.FormValue("sysinfo")
+
+	if sysinfo == "sysinfo" {
+		s.hSystemInfo(w, r)
+		return
+	}
 
 	if ext == "ext" {
 		s.hRaw(w, r)
@@ -161,7 +167,7 @@ func (s *HTTPStaticServer) hIndex(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	log.Println("GET", path, realPath)
+	log.Println("GET", path, realPath, sysinfo)
 	if r.FormValue("raw") == "false" || IsDir(realPath) {
 		if r.Method == "HEAD" {
 			return
@@ -421,6 +427,13 @@ func (s *HTTPStaticServer) hExt(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.Write(fileContent)
+}
+
+func (s *HTTPStaticServer) hSystemInfo(w http.ResponseWriter, r *http.Request) {
+	data, _ := json.Marshal(map[string]interface{}{
+		"version": "v0.4.1",
+	})
+	w.Write(data)
 }
 
 func (s *HTTPStaticServer) hRaw(w http.ResponseWriter, r *http.Request) {

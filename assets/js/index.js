@@ -526,8 +526,24 @@ $(function () {
   loadFileList(location.pathname + location.search)
 
   // update version
-  $.getJSON("/-/sysinfo", function (res) {
-    vm.version = res.version;
+  // $.getJSON("/-/sysinfo", function (res) {
+  //   vm.version = res.version;
+  // })
+
+  $.ajax({
+    url: '/',
+    method: 'GET',
+    data: {
+      sysinfo: "sysinfo"
+    },
+    success: function (res) {
+      console.log('res',res)
+      var jso = JSON.parse(res)
+      vm.version = jso.version;
+    },
+    error: function (err) {
+      console.log(err)
+    }
   })
 
   var clipboard = new Clipboard('.btn');
