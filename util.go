@@ -127,8 +127,6 @@ func UnzipFile(filename, dest string) error {
 }
 
 func GetFileNameWithTime() string {
-	//loc, _ := time.LoadLocation("Asia/Shanghai")
-	//return time.Now().In(loc).Format("20060102150405")
 	return GetTimeFormat("20060102150405")
 }
 
@@ -140,5 +138,4 @@ func GetTimeFormat(format string) string {
 	date := time.Now()
 	date.In(location)
 	return date.Format(format)
-
 }

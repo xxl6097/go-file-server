@@ -1,0 +1,90 @@
+package server
+
+import (
+	"github.com/gorilla/mux"
+	"github.com/xxl6097/go-server-file/internal/iface"
+	"github.com/xxl6097/go-server-file/internal/model"
+	"github.com/xxl6097/go-server-file/pkg/html"
+	"log"
+	"net/http"
+	"path/filepath"
+	"strings"
+	"sync"
+	"time"
+)
+
+var dirInfoSize = model.Directory{Size: make(map[string]int64), Mutex: &sync.RWMutex{}}
+
+type FileServer struct {
+	Root             string
+	Prefix           string
+	Upload           bool
+	Delete           bool
+	Title            string
+	Theme            string
+	PlistProxy       string
+	GoogleTrackerID  string
+	AuthType         string
+	DeepPathMaxDepth int
+	NoIndex          bool
+	NoLogin          bool
+
+	config  *model.Configure
+	indexes []model.IndexFileItem
+	router  *mux.Router
+	bufPool sync.Pool // use sync.Pool caching buf to reduce gc ratio
+}
+
+func NewFileServer(root string, noIndex bool) iface.IFileServer {
+	root = filepath.ToSlash(filepath.Clean(root))
+	if !strings.HasSuffix(root, "/") {
+		root = root + "/"
+	}
+	log.Printf("root path: %s\n", root)
+	this := FileServer{
+		Root:   root,
+		router: mux.NewRouter(),
+		Theme:  "black",
+		bufPool: sync.Pool{
+			New: func() interface{} { return make([]byte, 32*1024) },
+		},
+		NoIndex: noIndex,
+	}
+	if !noIndex {
+		go this.index()
+	}
+	return &this
+}
+
+func (f *FileServer) LoadConfig(configure *model.Configure) {
+	if configure == nil {
+		log.Fatal("config is nil")
+	}
+	f.config = configure
+}
+
+func (f *FileServer) makeHandleFunc() {
+	f.router.HandleFunc("/-/ipa/plist/{path:.*}", f.hPlist)
+	f.router.HandleFunc("/-/ipa/link/{path:.*}", f.hIpaLink)
+	f.router.HandleFunc("/up", f.hUp).Methods("GET")
+	f.router.HandleFunc("/{path:.*}", f.hIndex).Methods("GET", "HEAD")
+	f.router.HandleFunc("/{path:.*}", f.hFile).Methods(http.MethodPut)
+	f.router.HandleFunc("/{path:.*}", f.hUploadOrMkdir).Methods("POST")
+	f.router.HandleFunc("/{path:.*}", f.hDelete).Methods("DELETE")
+}
+
+func (f *FileServer) index() {
+	time.Sleep(1 * time.Second)
+	for {
+		startTime := time.Now()
+		log.Println("Started making search index")
+		f.makeIndex()
+		log.Printf("Completed search index in %v", time.Since(startTime))
+		//time.Sleep(time.Second * 1)
+		time.Sleep(time.Minute * 10)
+	}
+}
+
+func (f *FileServer) getRealPath(r *http.Request) string {
+	return html.GetRealPath(f.Root, f.Prefix, r)
+}

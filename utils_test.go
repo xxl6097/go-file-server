@@ -43,7 +43,7 @@ func TestCleanPath(t *testing.T) {
 		{"/-/foo", "/-/foo"},
 	}
 	for _, v := range tests {
-		res := cleanPath(v.orig)
+		res := CleanPath(v.orig)
 		if res != v.expect {
 			t.Fatalf("Clean path(%v) expect(%v) but got(%v)", v.orig, v.expect, res)
 		}
