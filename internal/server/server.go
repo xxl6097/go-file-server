@@ -15,6 +15,7 @@ import (
 
 var dirInfoSize = model.Directory{Size: make(map[string]int64), Mutex: &sync.RWMutex{}}
 
+// var dirInfoSize = Directory{size: make(map[string]int64), mutex: &sync.RWMutex{}}
 type FileServer struct {
 	Root             string
 	Prefix           string
@@ -87,4 +88,52 @@ func (f *FileServer) index() {
 
 func (f *FileServer) getRealPath(r *http.Request) string {
 	return html.GetRealPath(f.Root, f.Prefix, r)
+}
+
+func (f *FileServer) findIndex(text string) []model.IndexFileItem {
+	ret := make([]model.IndexFileItem, 0)
+	for _, item := range f.indexes {
+		ok := true
+		// search algorithm, space for AND
+		for _, keyword := range strings.Fields(text) {
+			needContains := true
+			if strings.HasPrefix(keyword, "-") {
+				needContains = false
+				keyword = keyword[1:]
+			}
+			if keyword == "" {
+				continue
+			}
+			ok = (needContains == strings.Contains(strings.ToLower(item.Path), strings.ToLower(keyword)))
+			if !ok {
+				break
+			}
+		}
+		if ok {
+			ret = append(ret, item)
+		}
+	}
+	return ret
+}
+
+func (f *FileServer) historyDirSize(dir string) int64 {
+	dirInfoSize.Mutex.RLock()
+	size, ok := dirInfoSize.Size[dir]
+	dirInfoSize.Mutex.RUnlock()
+
+	if ok {
+		return size
+	}
+
+	for _, fitem := range f.indexes {
+		if filepath.HasPrefix(fitem.Path, dir) {
+			size += fitem.Info.Size()
+		}
+	}
+
+	dirInfoSize.Mutex.Lock()
+	dirInfoSize.Size[dir] = size
+	dirInfoSize.Mutex.Unlock()
+
+	return size
 }

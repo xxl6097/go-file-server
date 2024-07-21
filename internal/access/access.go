@@ -16,6 +16,10 @@ type Access struct {
 	AccessTables []model.AccessTable `yaml:"accessTables"`
 }
 
+func (c *Access) GetAccess() *Access {
+	return c
+}
+
 func (c *Access) IsDelete() bool {
 	return c.Delete
 }

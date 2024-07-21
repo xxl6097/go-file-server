@@ -271,7 +271,7 @@ func (f *FileServer) hIndex(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	if r.FormValue("json") == "true" {
-		//f.hJSONList(w, r)
+		f.hJSONList(w, r)
 		return
 	}
 

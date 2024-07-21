@@ -1,6 +1,9 @@
 package iface
 
-import "net/http"
+import (
+	"github.com/xxl6097/go-server-file/internal/access"
+	"net/http"
+)
 
 type IAccess interface {
 	CanAccess(fileName string) bool
@@ -8,4 +11,5 @@ type IAccess interface {
 	CanUploadByToken(token string) bool
 	CanUpload(r *http.Request) bool
 	IsDelete() bool
+	GetAccess() *access.Access
 }
