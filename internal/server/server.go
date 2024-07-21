@@ -15,7 +15,7 @@ import (
 
 var dirInfoSize = model.Directory{Size: make(map[string]int64), Mutex: &sync.RWMutex{}}
 
-// var dirInfoSize = Directory{size: make(map[string]int64), mutex: &sync.RWMutex{}}
+// FileServer var dirInfoSize = Directory{size: make(map[string]int64), mutex: &sync.RWMutex{}}
 type FileServer struct {
 	Root             string
 	Prefix           string
