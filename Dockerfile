@@ -16,7 +16,7 @@ COPY . /app
 #RUN go build -ldflags="-w -s" *.go
 RUN echo "args====>${ARG_LDFLAGS}"
 #RUN go build -ldflags="-s -w -X 'main.Version=$ARG_VERSION'" *.go
-RUN go build -ldflags "${ARG_LDFLAGS}" -o main
+RUN go build -ldflags "${ARG_LDFLAGS}" -o main ./cmd/app
 
 
 
