@@ -5,7 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/gorilla/mux"
-	"github.com/xxl6097/go-server-file/internal"
+	"github.com/xxl6097/go-server-file/internal/args"
 	"github.com/xxl6097/go-server-file/internal/model"
 	file2 "github.com/xxl6097/go-server-file/pkg/file"
 	"github.com/xxl6097/go-server-file/pkg/html"
@@ -81,7 +81,7 @@ func (f *FileServer) hIpaLink(w http.ResponseWriter, r *http.Request) {
 		plistUrl = html.CombineURL(r, "/-/ipa/plist/"+path).String()
 	} else if f.PlistProxy != "" {
 		httpPlistLink := "http://" + r.Host + "/-/ipa/plist/" + path
-		url, err := html.GenPlistLink(f.PlistProxy, internal.DefaultPlistProxy, httpPlistLink)
+		url, err := html.GenPlistLink(f.PlistProxy, args.DefaultPlistProxy, httpPlistLink)
 		if err != nil {
 			http.Error(w, err.Error(), 500)
 			return
@@ -94,7 +94,7 @@ func (f *FileServer) hIpaLink(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Set("Content-Type", "text/html")
 	log.Println("PlistURL:", plistUrl)
-	internal.RenderHTML(w, "assets/ipa-install.html", map[string]string{
+	f.renderHTML(w, "assets/ipa-install.html", map[string]string{
 		"Name":      filepath.Base(path),
 		"PlistLink": plistUrl,
 	})
@@ -103,7 +103,7 @@ func (f *FileServer) hIpaLink(w http.ResponseWriter, r *http.Request) {
 func (f *FileServer) hUp(w http.ResponseWriter, r *http.Request) {
 	// 设置响应头
 	w.Header().Set("Content-Type", "text/plain")
-	userpass := strings.SplitN(internal.Gcfg.Auth.HTTP, ":", 2)
+	userpass := strings.SplitN(f.config.Auth.HTTP, ":", 2)
 	var basicauth string
 	if userpass != nil && len(userpass) == 2 {
 		basicauth = fmt.Sprintf("%s:%s", userpass[0], userpass[1])
@@ -295,10 +295,10 @@ func (f *FileServer) hIndex(w http.ResponseWriter, r *http.Request) {
 		if r.Method == "HEAD" {
 			return
 		}
-		internal.CopyConfigFile(r.Host)
-		internal.RenderHTML(w, "assets/index.html", f)
+		args.CopyConfigFile(r.Host)
+		f.renderHTML(w, "assets/index.html", f)
 	} else {
-		if filepath.Base(path) == internal.YAMLCONF {
+		if filepath.Base(path) == args.YAMLCONF {
 			auth := f.readAccessConf(realPath)
 			if !auth.IsDelete() {
 				http.Error(w, "Security warning, not allowed to read", http.StatusForbidden)

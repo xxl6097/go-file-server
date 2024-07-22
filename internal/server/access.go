@@ -1,9 +1,8 @@
 package server
 
 import (
-	"github.com/xxl6097/go-server-file/internal"
 	"github.com/xxl6097/go-server-file/internal/access"
-	"github.com/xxl6097/go-server-file/internal/iface"
+	"github.com/xxl6097/go-server-file/internal/args"
 	"github.com/xxl6097/go-server-file/pkg/file"
 	"gopkg.in/yaml.v2"
 	"io/ioutil"
@@ -12,14 +11,14 @@ import (
 	"path/filepath"
 )
 
-func (s *FileServer) defaultAccessConf() iface.IAccess {
-	return &access.Access{
+func (s *FileServer) defaultAccessConf() access.Access {
+	return access.Access{
 		Upload: s.Upload,
 		Delete: s.Delete,
 	}
 }
 
-func (s *FileServer) readAccessConf(realPath string) (ac iface.IAccess) {
+func (s *FileServer) readAccessConf(realPath string) (ac access.Access) {
 	relativePath, err := filepath.Rel(s.Root, realPath)
 	if err != nil || relativePath == "." || relativePath == "" { // actually relativePath is always "." if root == realPath
 		ac = s.defaultAccessConf()
@@ -31,7 +30,7 @@ func (s *FileServer) readAccessConf(realPath string) (ac iface.IAccess) {
 	if file.IsFile(realPath) {
 		realPath = filepath.Dir(realPath)
 	}
-	cfgFile := filepath.Join(realPath, internal.YAMLCONF)
+	cfgFile := filepath.Join(realPath, args.YAMLCONF)
 	data, err := ioutil.ReadFile(cfgFile)
 	if err != nil {
 		if os.IsNotExist(err) {

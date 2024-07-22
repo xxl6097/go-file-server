@@ -1,21 +1,23 @@
 package server
 
 import (
+	"fmt"
 	"github.com/gorilla/mux"
+	"github.com/xxl6097/go-server-file/internal/assets"
 	"github.com/xxl6097/go-server-file/internal/iface"
 	"github.com/xxl6097/go-server-file/internal/model"
-	"github.com/xxl6097/go-server-file/pkg/html"
+	"github.com/xxl6097/go-server-file/internal/version"
+	"html/template"
 	"log"
 	"net/http"
+	"net/url"
 	"path/filepath"
+	"strconv"
 	"strings"
 	"sync"
 	"time"
 )
 
-var dirInfoSize = model.Directory{Size: make(map[string]int64), Mutex: &sync.RWMutex{}}
-
-// FileServer var dirInfoSize = Directory{size: make(map[string]int64), mutex: &sync.RWMutex{}}
 type FileServer struct {
 	Root             string
 	Prefix           string
@@ -34,9 +36,18 @@ type FileServer struct {
 	indexes []model.IndexFileItem
 	router  *mux.Router
 	bufPool sync.Pool // use sync.Pool caching buf to reduce gc ratio
+
+	_tmpls  map[string]*template.Template
+	funcMap template.FuncMap
+
+	dirInfoSize model.Directory
 }
 
-func NewFileServer(root string, noIndex bool) iface.IFileServer {
+func NewFileServer(cfg *model.Configure) iface.IFileServer {
+	if cfg == nil {
+		log.Fatal("cfg is nil")
+	}
+	root := cfg.Root
 	root = filepath.ToSlash(filepath.Clean(root))
 	if !strings.HasSuffix(root, "/") {
 		root = root + "/"
@@ -44,24 +55,71 @@ func NewFileServer(root string, noIndex bool) iface.IFileServer {
 	log.Printf("root path: %s\n", root)
 	this := FileServer{
 		Root:   root,
+		config: cfg,
 		router: mux.NewRouter(),
 		Theme:  "black",
 		bufPool: sync.Pool{
 			New: func() interface{} { return make([]byte, 32*1024) },
 		},
-		NoIndex: noIndex,
+		NoIndex:     cfg.NoIndex,
+		_tmpls:      make(map[string]*template.Template),
+		dirInfoSize: model.Directory{Size: make(map[string]int64), Mutex: &sync.RWMutex{}},
 	}
-	if !noIndex {
+	this.makeFuncMap()
+	if !cfg.NoIndex {
 		go this.index()
 	}
+	this.makeHandleFunc()
+	this.makeConfig()
 	return &this
 }
 
-func (f *FileServer) LoadConfig(configure *model.Configure) {
-	if configure == nil {
-		log.Fatal("config is nil")
+func (f *FileServer) makeFuncMap() {
+	f.funcMap = template.FuncMap{
+		"title": strings.Title,
+		"urlhash": func(path string) string {
+			httpFile, err := assets.Assets.Open(path)
+			if err != nil {
+				return path + "#no-such-file"
+			}
+			info, err := httpFile.Stat()
+			if err != nil {
+				return path + "#stat-error"
+			}
+			return fmt.Sprintf("%s?t=%d", path, info.ModTime().Unix())
+		},
 	}
-	f.config = configure
+}
+
+func (s *FileServer) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	s.router.ServeHTTP(w, r)
+}
+
+func (f *FileServer) Serve() {
+	if f.config.PlistProxy != "" {
+		u, err := url.Parse(f.config.PlistProxy)
+		if err != nil {
+			log.Fatal(err)
+		}
+		u.Scheme = "https"
+		f.PlistProxy = u.String()
+	}
+	if f.PlistProxy != "" {
+		log.Printf("plistproxy: %s", strconv.Quote(f.PlistProxy))
+	}
+	version.Version()
+	mainRouter := f.hSubRouter()
+	srv := &http.Server{
+		Handler: mainRouter,
+		Addr:    f.config.Addr,
+	}
+	var err error
+	if f.config.Key != "" && f.config.Cert != "" {
+		err = srv.ListenAndServeTLS(f.config.Cert, f.config.Key)
+	} else {
+		err = srv.ListenAndServe()
+	}
+	log.Fatal(err)
 }
 
 func (f *FileServer) makeHandleFunc() {
@@ -81,13 +139,8 @@ func (f *FileServer) index() {
 		log.Println("Started making search index")
 		f.makeIndex()
 		log.Printf("Completed search index in %v", time.Since(startTime))
-		//time.Sleep(time.Second * 1)
 		time.Sleep(time.Minute * 10)
 	}
-}
-
-func (f *FileServer) getRealPath(r *http.Request) string {
-	return html.GetRealPath(f.Root, f.Prefix, r)
 }
 
 func (f *FileServer) findIndex(text string) []model.IndexFileItem {
@@ -114,26 +167,4 @@ func (f *FileServer) findIndex(text string) []model.IndexFileItem {
 		}
 	}
 	return ret
-}
-
-func (f *FileServer) historyDirSize(dir string) int64 {
-	dirInfoSize.Mutex.RLock()
-	size, ok := dirInfoSize.Size[dir]
-	dirInfoSize.Mutex.RUnlock()
-
-	if ok {
-		return size
-	}
-
-	for _, fitem := range f.indexes {
-		if filepath.HasPrefix(fitem.Path, dir) {
-			size += fitem.Info.Size()
-		}
-	}
-
-	dirInfoSize.Mutex.Lock()
-	dirInfoSize.Size[dir] = size
-	dirInfoSize.Mutex.Unlock()
-
-	return size
 }

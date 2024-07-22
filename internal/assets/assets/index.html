@@ -34,6 +34,8 @@
           </button>
           <a class="navbar-brand" href="[[.Prefix]]/">[[.Title]]</a>
         </div>
+
+
         <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-2">
           <ul class="nav navbar-nav">
             <li class="hidden-xs">
@@ -70,6 +72,11 @@
             [[end]]
           </ul>
 
+
+
+<!--          <div class="nav navbar-nav" style="background-color: #00BCD4;width: 400px;height: 50px"></div>-->
+
+
           [[if not .NoIndex ]]
           <form class="navbar-form navbar-right">
             <div class="input-group">
@@ -83,11 +90,26 @@
             </div>
           </form>
           [[end]]
+
+<!--          <div class="nav navbar-nav">-->
+<!--            <div style="border: 1px dashed #ccc; float: right; right: auto;left:auto;height: auto;margin: 3px">-->
+<!--              <div style="font-size: 13px;  align-content: center; text-align:center;">-->
+<!--                <span class="glyphicon glyphicon-upload"></span>-->
+<!--                <div class="upload_text">点击上传或将文件拖拽到此处</div>-->
+<!--              </div>-->
+<!--            </div>-->
+<!--          </div>-->
+<!--          <div class="nav navbar-nav form-control" style="width: 400px;height: 50px"></div>-->
           <ul id="nav-right-bar" class="nav navbar-nav navbar-right">
+
           </ul>
         </div>
+
+
       </div>
     </div>
+
+
   </nav>
   <div class="container">
     <div class="col-md-12">
@@ -300,11 +322,37 @@
       <!-- File content modal end -->
 
 
+      <!-- login modal  start-->
+      <div id="login-modal" class="modal fade" tabindex="-1" role="dialog">
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <div class="modal-header">
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+              <h4 class="modal-title">
+                <span id="login-title"></span>
+              </h4>
+            </div>
+            <div class="modal-body">
+              <input type="text" name="search" class="form-control" placeholder="Search text" v-bind:value="search"
+                     autofocus>
+              <input type="text" name="search" class="form-control" placeholder="Search text" v-bind:value="search"
+                     autofocus>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-default" @click="saveFile">Save</button>
+              <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- login modal  end-->
+
+
 
     </div>
     <div class="col-md-12">
       <div id="footer" class="pull-right" style="margin: 2em 1em">
-        <a href="https://github.com/codeskyblue/gohttpserver">gohttpserver ({{version}})</a>, by <a href="https://github.com/codeskyblue">codeskyblue</a>.
+        <a href="https://github.com/xxl6097/go-serverfile">{{appInfo.AppName}} {{appInfo.BuildTime}} ({{appInfo.BuildVersion}})</a>, by <a href="https://github.com/xxl6097">uuxia</a>.
       </div>
     </div>
   </div>

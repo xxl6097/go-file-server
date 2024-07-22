@@ -16,6 +16,7 @@ require (
 	github.com/shogo82148/androidbinary v0.0.0-20180627093851-01c4bfa8b3b5
 	github.com/stretchr/testify v1.3.0
 	golang.org/x/text v0.14.0
+	gopkg.in/yaml.v2 v2.2.1
 )
 
 require (

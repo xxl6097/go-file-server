@@ -32,9 +32,10 @@ function showErrorMessage(jqXHR) {
   if (errMsg == null) {
     errMsg = jqXHR.responseText
   }
-  alert(String(jqXHR.status).concat(":", errMsg));
+  alert('showErrorMessage',String(jqXHR.status).concat(":", errMsg));
   console.error(errMsg)
 }
+
 
 var vm = new Vue({
   el: "#app",
@@ -56,6 +57,7 @@ var vm = new Vue({
       contentHTML: '',
     },
     version: "loading",
+    appInfo:{},
     mtimeTypeFromNow: false, // or fromNow
     auth: {},
     search: getQueryString("search"),
@@ -91,7 +93,7 @@ var vm = new Vue({
           that.exts = cleanedLines;
           let index = that.exts.indexOf('js'); // 返回 2
           let exists = index !== -1; // 返回 true
-          console.log('js',index,exists,exists1)
+          console.log('js',index,exists)
         },
         error: function (err) {
           console.log(err)
@@ -320,6 +322,10 @@ var vm = new Vue({
         }
       })
     },
+    loginModel: function (f) {
+      $("#login-title").text("wahaha");
+      $("#login-modal").modal("show");
+    },
     loadFile: function (f) {
       console.log(f);
       this.item = Object.assign({}, f);
@@ -524,10 +530,19 @@ $(function () {
 
   // For page first loading
   loadFileList(location.pathname + location.search)
-
   // update version
-  $.getJSON("/-/sysinfo", function (res) {
-    vm.version = res.version;
+  // $.getJSON("/-/sysinfo", function (res) {
+  //   vm.version = res.version;
+  // })
+
+  $.ajax({
+    url: "/-/sysinfo",
+    method: "get",
+    success: function (res) {
+      if (res) {
+        vm.appInfo = res
+      }
+    }.bind(this)
   })
 
   var clipboard = new Clipboard('.btn');

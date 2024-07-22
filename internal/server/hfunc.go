@@ -3,7 +3,6 @@ package server
 import (
 	"encoding/json"
 	"github.com/gorilla/mux"
-	"github.com/xxl6097/go-server-file/internal"
 	"github.com/xxl6097/go-server-file/internal/model"
 	"github.com/xxl6097/go-server-file/pkg/apk"
 	"github.com/xxl6097/go-server-file/pkg/file"
@@ -84,20 +83,20 @@ func (f *FileServer) hJSONList(w http.ResponseWriter, r *http.Request) {
 	fileInfoMap := make(map[string]os.FileInfo, 0)
 
 	if search != "" {
-		if strings.HasPrefix(search, internal.Gcfg.Keyword) {
+		if strings.HasPrefix(search, f.config.Keyword) {
 			paths := strings.Split(search, "-")
 			if paths != nil && len(paths) >= 3 {
-				if strings.EqualFold(paths[1], internal.Gcfg.Auth.HTTP) {
+				if strings.EqualFold(paths[1], f.config.Auth.HTTP) {
 					ok := file.IsDirOrFileExist(paths[2])
 					log.Println("dir path:", ok, paths[2])
 					if ok {
 						f.Root = paths[2]
 					}
 				} else {
-					f.Root = internal.Gcfg.Root
+					f.Root = f.config.Root
 				}
 			} else {
-				f.Root = internal.Gcfg.Root
+				f.Root = f.config.Root
 			}
 		} else {
 			results := f.findIndex(search)
