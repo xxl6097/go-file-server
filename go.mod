@@ -1,4 +1,4 @@
-module github.com/xxl6097/go-server-file
+module github.com/xxl6097/go-serverfile
 
 go 1.22
 
@@ -8,7 +8,6 @@ require (
 	github.com/codeskyblue/go-accesslog v0.0.0-20171215023101-6188d3bd9371
 	github.com/codeskyblue/openid-go v0.0.0-20160923065855-0d30842b2fb4
 	github.com/fork2fix/go-plist v0.0.0-20181126021357-36960be5e636
-	github.com/go-yaml/yaml v2.1.0+incompatible
 	github.com/goji/httpauth v0.0.0-20160601135302-2da839ab0f4d
 	github.com/gorilla/handlers v1.4.0
 	github.com/gorilla/mux v1.6.2
@@ -16,7 +15,7 @@ require (
 	github.com/shogo82148/androidbinary v0.0.0-20180627093851-01c4bfa8b3b5
 	github.com/stretchr/testify v1.3.0
 	golang.org/x/text v0.14.0
-	gopkg.in/yaml.v2 v2.2.1
+	gopkg.in/yaml.v2 v2.4.0
 )
 
 require (

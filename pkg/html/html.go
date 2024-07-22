@@ -4,7 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"github.com/gorilla/mux"
-	"github.com/xxl6097/go-server-file/pkg/file"
+	"github.com/xxl6097/go-serverfile/pkg/file"
 	"io/ioutil"
 	"log"
 	"net/http"

@@ -1,8 +1,8 @@
 package internal
 
 import (
-	"github.com/xxl6097/go-server-file/internal/args"
-	"github.com/xxl6097/go-server-file/internal/server"
+	"github.com/xxl6097/go-serverfile/internal/args"
+	"github.com/xxl6097/go-serverfile/internal/server"
 	"log"
 )
 

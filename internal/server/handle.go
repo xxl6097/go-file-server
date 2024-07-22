@@ -5,12 +5,12 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/gorilla/mux"
-	"github.com/xxl6097/go-server-file/internal/args"
-	"github.com/xxl6097/go-server-file/internal/model"
-	file2 "github.com/xxl6097/go-server-file/pkg/file"
-	"github.com/xxl6097/go-server-file/pkg/html"
-	"github.com/xxl6097/go-server-file/pkg/ipa"
-	"github.com/xxl6097/go-server-file/pkg/zip"
+	"github.com/xxl6097/go-serverfile/internal/args"
+	"github.com/xxl6097/go-serverfile/internal/model"
+	file2 "github.com/xxl6097/go-serverfile/pkg/file"
+	"github.com/xxl6097/go-serverfile/pkg/html"
+	"github.com/xxl6097/go-serverfile/pkg/ipa"
+	"github.com/xxl6097/go-serverfile/pkg/zip"
 	"io"
 	"log"
 	"net/http"
@@ -153,6 +153,10 @@ func (f *FileServer) hDelete(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 	w.Write([]byte("Success"))
+}
+
+func (f *FileServer) hAdmin(w http.ResponseWriter, r *http.Request) {
+	fmt.Println(r)
 }
 
 func (f *FileServer) hUploadOrMkdir(w http.ResponseWriter, req *http.Request) {

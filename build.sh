@@ -4,7 +4,7 @@ appname=goserverfile
 DisplayName=基于Golang文件管理器
 Description="做最好的HTTP文件服务器，人性化的UI体验，文件的上传支持，安卓和苹果安装包的二维码直接生成。"
 version=0.0.0
-versionDir="github.com/xxl6097/go-server-file/internal/version"
+versionDir="github.com/xxl6097/go-serverfile/internal/version"
 appdir="./cmd/app"
 
 

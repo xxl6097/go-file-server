@@ -2,7 +2,7 @@ package oauth2
 
 import (
 	"encoding/json"
-	"github.com/xxl6097/go-server-file/internal/model"
+	"github.com/xxl6097/go-serverfile/internal/model"
 	"net/http"
 	"net/url"
 )
