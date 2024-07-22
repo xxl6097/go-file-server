@@ -210,17 +210,17 @@ function menu() {
   echo "请输入编号:"
   read index
   initArgs
-#  case "$index" in
-#  [0]) (build_windows_amd64) ;;
-#  [1]) (build_linux_amd64) ;;
-#  [2]) (build_linux_arm64) ;;
-#  [3]) (build_darwin_arm64) ;;
-#  [4]) (build_images_to_hubdocker) ;;
-#  [5]) (build_images_to_conding) ;;
-#  [6]) (build_images_to_tencent) ;;
-#  [7]) (build_images_to_harbor_z4) ;;
-#  *) echo "exit" ;;
-#  esac
+  case "$index" in
+  [0]) (build_windows_amd64) ;;
+  [1]) (build_linux_amd64) ;;
+  [2]) (build_linux_arm64) ;;
+  [3]) (build_darwin_arm64) ;;
+  [4]) (build_images_to_hubdocker) ;;
+  [5]) (build_images_to_conding) ;;
+  [6]) (build_images_to_tencent) ;;
+  [7]) (build_images_to_harbor_z4) ;;
+  *) echo "exit" ;;
+  esac
 }
 
 menu
