@@ -38,7 +38,7 @@ function getversion() {
 }
 
 function GetLDFLAGS() {
-  versionDir="github.com/xxl6097/go-server-file/version"
+  versionDir="github.com/xxl6097/go-server-file/internal/version"
   APP_NAME=${appname}
   APP_VERSION=${appversion}
   BUILD_VERSION=$(if [ "$(git describe --tags --abbrev=0 2>/dev/null)" != "" ]; then git describe --tags --abbrev=0; else git log --pretty=format:'%h' -n 1; fi)
