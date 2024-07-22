@@ -545,6 +545,16 @@ $(function () {
     }.bind(this)
   })
 
+  $.ajax({
+    url: "/admin",
+    method: "post",
+    success: function (res) {
+      if (res) {
+        console.log(res)
+      }
+    }.bind(this)
+  })
+
   var clipboard = new Clipboard('.btn');
   clipboard.on('success', function (e) {
     console.info('Action:', e.action);
