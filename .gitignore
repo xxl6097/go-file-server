@@ -1,6 +1,8 @@
 .gradle
 /local.properties
 /.idea
+dist
+./dist
 .DS_Store
 /build
 *.iml

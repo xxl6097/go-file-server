@@ -1,26 +1,18 @@
 #!/bin/bash
 appname=go-serverfile
-appversion=0.0.0
-
-function tag() {
-    appversion=$(getversion)
-    echo "current version:${appversion}"
-    git add .
-    git commit -m "release v${appversion}"
-    git tag -a v$appversion -m "release v${appversion}"
-    git push origin v$appversion
-    echo $appversion >version.txt
-}
+version=0.0.0
+versionDir="github.com/xxl6097/go-serverfile/internal/version"
+appdir="./cmd/app"
 
 function getversion() {
-  appversion=$(cat version.txt)
-  if [ "$appversion" = "" ]; then
-    appversion="0.0.0"
-    echo $appversion
+  version=$(cat version.txt)
+  if [ "$version" = "" ]; then
+    version="0.0.0"
+    echo $version
   else
-    v3=$(echo $appversion | awk -F'.' '{print($3);}')
-    v2=$(echo $appversion | awk -F'.' '{print($2);}')
-    v1=$(echo $appversion | awk -F'.' '{print($1);}')
+    v3=$(echo $version | awk -F'.' '{print($3);}')
+    v2=$(echo $version | awk -F'.' '{print($2);}')
+    v1=$(echo $version | awk -F'.' '{print($1);}')
     if [[ $(expr $v3 \>= 99) == 1 ]]; then
       v3=0
       if [[ $(expr $v2 \>= 99) == 1 ]]; then
@@ -37,25 +29,43 @@ function getversion() {
   fi
 }
 
-function GetLDFLAGS() {
-  versionDir="github.com/xxl6097/go-server-file/version"
+
+
+function buildArgs() {
+  os_name=$(uname -s)
   APP_NAME=${appname}
-  APP_VERSION=${appversion}
   BUILD_VERSION=$(if [ "$(git describe --tags --abbrev=0 2>/dev/null)" != "" ]; then git describe --tags --abbrev=0; else git log --pretty=format:'%h' -n 1; fi)
   BUILD_TIME=$(TZ=Asia/Shanghai date +%FT%T%z)
   GIT_REVISION=$(git rev-parse --short HEAD)
   GIT_BRANCH=$(git name-rev --name-only HEAD)
   GO_VERSION=$(go version)
   ldflags="-s -w\
- -X '${versionDir}.AppVersion=${APP_VERSION}'\
  -X '${versionDir}.AppName=${APP_NAME}'\
+ -X '${versionDir}.AppVersion=${BUILD_VERSION}'\
  -X '${versionDir}.BuildVersion=${BUILD_VERSION}'\
  -X '${versionDir}.BuildTime=${BUILD_TIME}'\
  -X '${versionDir}.GitRevision=${GIT_REVISION}'\
  -X '${versionDir}.GitBranch=${GIT_BRANCH}'\
  -X '${versionDir}.GoVersion=${GO_VERSION}'"
-  echo "$ldflags"
+  #echo "$ldflags"
 }
+
+function tagAndGitPush() {
+    git add .
+    git commit -m "release v${version}"
+    git tag -a v$version -m "release v${version}"
+    git push origin v$version
+    echo $version >version.txt
+}
+
+function initArgs() {
+  version=$(getversion)
+  echo "==>version:${version}"
+  rm -rf dist
+  tagAndGitPush
+  buildArgs
+}
+
 
 function build_windows_amd64() {
   CGO_ENABLED=0 GOOS=windows GOARCH=amd64 go build -ldflags "$ldflags" -o ${appname}.exe
@@ -77,8 +87,8 @@ function build_darwin_arm64() {
 function build_images_to_tencent() {
   docker login ccr.ccs.tencentyun.com --username=100016471941 -p het002402
   docker build --build-arg ARG_LDFLAGS="$ldflags" -t ${appname} .
-  docker tag ${appname}:${appversion} ccr.ccs.tencentyun.com/100016471941/${appname}:${appversion}
-  docker buildx build --build-arg ARG_LDFLAGS="$ldflags" --platform linux/amd64,linux/arm64 -t ccr.ccs.tencentyun.com/100016471941/${appname}:${appversion} --push .
+  docker tag ${appname}:${version} ccr.ccs.tencentyun.com/100016471941/${appname}:${version}
+  docker buildx build --build-arg ARG_LDFLAGS="$ldflags" --platform linux/amd64,linux/arm64 -t ccr.ccs.tencentyun.com/100016471941/${appname}:${version} --push .
 }
 
 function build_images_to_hubdocker() {
@@ -87,25 +97,24 @@ function build_images_to_hubdocker() {
   docker login -u xxl6097 -p het002402
   #docker login ghcr.io --username xxl6097 --password-stdin
   docker build --build-arg ARG_LDFLAGS="$ldflags" -t ${appname} .
-  docker tag ${appname}:${appversion} xxl6097/${appname}:${appversion}
-  docker buildx build --build-arg ARG_LDFLAGS="$ldflags" --platform linux/amd64,linux/arm64 -t xxl6097/${appname}:${appversion} --push .
+  docker tag ${appname}:${version} xxl6097/${appname}:${version}
+  docker buildx build --build-arg ARG_LDFLAGS="$ldflags" --platform linux/amd64,linux/arm64 -t xxl6097/${appname}:${version} --push .
 
-  docker tag ${appname}:${appversion} xxl6097/${appname}:latest
-  docker_push_result=$(docker buildx build --build-arg ARG_LDFLAGS="$ldflags" --platform linux/amd64,linux/arm64 -t xxl6097/${appname}:latest --push . 2>&1)
-  echo "docker pull xxl6097/${appname}:${appversion}"
+  docker tag ${appname}:${version} xxl6097/${appname}:latest
+  docker buildx build --build-arg ARG_LDFLAGS="$ldflags" --platform linux/amd64,linux/arm64 -t xxl6097/${appname}:latest --push .
 }
 
 function build_images_to_conding() {
   os_type
   docker login -u prdsl-1683373983040 -p ffd28ef40d69e45f4e919e6b109d5a98601e3acd clife-devops-docker.pkg.coding.net
   docker build --build-arg ARG_LDFLAGS="$ldflags" -t ${appname} .
-  docker tag ${appname}:${appversion} clife-devops-docker.pkg.coding.net/public-repository/prdsl/${appname}:${appversion}
-  docker buildx build --build-arg ARG_LDFLAGS="$ldflags" --platform linux/amd64,linux/arm64 -t clife-devops-docker.pkg.coding.net/public-repository/prdsl/${appname}:${appversion} --push .
+  docker tag ${appname}:${version} clife-devops-docker.pkg.coding.net/public-repository/prdsl/${appname}:${version}
+  docker buildx build --build-arg ARG_LDFLAGS="$ldflags" --platform linux/amd64,linux/arm64 -t clife-devops-docker.pkg.coding.net/public-repository/prdsl/${appname}:${version} --push .
 
 
-  docker tag ${appname}:${appversion} clife-devops-docker.pkg.coding.net/public-repository/prdsl/${appname}:latest
+  docker tag ${appname}:${version} clife-devops-docker.pkg.coding.net/public-repository/prdsl/${appname}:latest
   docker buildx build --build-arg ARG_LDFLAGS="$ldflags" --platform linux/amd64,linux/arm64 -t clife-devops-docker.pkg.coding.net/public-repository/prdsl/${appname}:latest --push .
-  echo "docker pull clife-devops-docker.pkg.coding.net/public-repository/prdsl/${appname}:${appversion}"
+  echo "docker pull clife-devops-docker.pkg.coding.net/public-repository/prdsl/${appname}:${version}"
 }
 function build_images_to_harbor_z4() {
 #  docker login --username=xxl6097 -p Het002402 uuxia.cn:8085
@@ -116,11 +125,11 @@ function build_images_to_harbor_z4() {
 
   docker login --username=xxl6097 -p Het002402 uuxia.cn:8085
 #  docker build -t ${appname} .
-#  docker tag ${appname} uuxia.cn:8085/xxl6097/${appname}:${appversion}
-#  docker push uuxia.cn:8085/xxl6097/${appname}:${appversion}
-  docker buildx build --build-arg ARG_LDFLAGS="$ldflags" --platform linux/amd64,linux/arm64 -t uuxia.cn:8085/xxl6097/${appname}:${appversion} --push .
+#  docker tag ${appname} uuxia.cn:8085/xxl6097/${appname}:${version}
+#  docker push uuxia.cn:8085/xxl6097/${appname}:${version}
+  docker buildx build --build-arg ARG_LDFLAGS="$ldflags" --platform linux/amd64,linux/arm64 -t uuxia.cn:8085/xxl6097/${appname}:${version} --push .
   docker buildx build --build-arg ARG_LDFLAGS="$ldflags" --platform linux/amd64,linux/arm64 -t uuxia.cn:8085/xxl6097/${appname}:latest --push .
-  echo "==>uuxia.cn:8085/xxl6097/${appname}:${appversion}"
+  echo "==>uuxia.cn:8085/xxl6097/${appname}:${version}"
 }
 
 # https://blog.csdn.net/m0_51964671/article/details/135732994
@@ -138,15 +147,15 @@ function build_images_to_harbor() {
   docker buildx build --platform linux/amd64,linux/arm64 -t 10.6.14.26:88/xxl6097/goserverfile:v0.0.4 --push .
 
   docker build --build-arg ARG_LDFLAGS="$ldflags" -t ${appname} .
-  #docker tag ${appname}:${appversion} xxl6097/${appname}:${appversion}
-  docker tag ${appname}:${appversion} 10.6.14.26:88/xxl6097/${appname}:${appversion}
-  docker push 10.6.14.26:88/xxl6097/${appname}:${appversion}
-  #docker push 10.6.14.26:88/xxl6097/${appname}:${appversion}
-  #docker buildx build --build-arg ARG_LDFLAGS="$ldflags" --platform linux/amd64,linux/arm64 -t 10.6.14.26:88/xxl6097/${appname}:${appversion} --push .
+  #docker tag ${appname}:${version} xxl6097/${appname}:${version}
+  docker tag ${appname}:${version} 10.6.14.26:88/xxl6097/${appname}:${version}
+  docker push 10.6.14.26:88/xxl6097/${appname}:${version}
+  #docker push 10.6.14.26:88/xxl6097/${appname}:${version}
+  #docker buildx build --build-arg ARG_LDFLAGS="$ldflags" --platform linux/amd64,linux/arm64 -t 10.6.14.26:88/xxl6097/${appname}:${version} --push .
 
-#  docker tag ${appname}:${appversion} xxl6097/${appname}:latest
+#  docker tag ${appname}:${version} xxl6097/${appname}:latest
 #  docker_push_result=$(docker buildx build --build-arg ARG_LDFLAGS="$ldflags" --platform linux/amd64,linux/arm64 -t 10.6.14.26:88/uuxia/xxl6097/${appname}:latest --push . 2>&1)
-#  echo "docker pull xxl6097/${appname}:${appversion}"
+#  echo "docker pull xxl6097/${appname}:${version}"
 }
 
 function gomodtidy() {
@@ -200,7 +209,7 @@ function menu() {
   echo "7. harbor"
   echo "请输入编号:"
   read index
-  tag
+  initArgs
   case "$index" in
   [0]) (build_windows_amd64) ;;
   [1]) (build_linux_amd64) ;;
@@ -212,30 +221,6 @@ function menu() {
   [7]) (build_images_to_harbor_z4) ;;
   *) echo "exit" ;;
   esac
-
-  if ((index >= 4 && index <= 6)); then
-    # 获取命令的退出状态码
-    exit_status=$?
-    # 检查退出状态码
-    if [ $exit_status -eq 0 ]; then
-      echo "成功推送Docker"
-      echo $appversion >version.txt
-    else
-      echo "失败"
-      echo "【$docker_push_result】"
-    fi
-  fi
-  rm -rf files
-  git add .
-  git commit -m "$appversion"
-  git push --tags
 }
 
-function main() {
-  appversion=$(getversion)
-  echo "当前版本：$appversion"
-  git tag $appversion
-  GetLDFLAGS
-  menu
-}
-main
+menu
