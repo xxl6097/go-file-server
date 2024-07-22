@@ -50,6 +50,14 @@ function buildArgs() {
   #echo "$ldflags"
 }
 
+function tagAndGitPush() {
+    git add .
+    git commit -m "release v${version}"
+    git tag -a v$version -m "release v${version}"
+    git push origin v$version
+    echo $version >version.txt
+}
+
 function initArgs() {
   version=$(getversion)
   echo "version:${version}"
@@ -58,13 +66,6 @@ function initArgs() {
   buildArgs
 }
 
-function tagAndGitPush() {
-    git add .
-    git commit -m "release v${version}"
-    git tag -a v$version -m "release v${version}"
-    git push origin v$version
-    echo $version >version.txt
-}
 
 function build_windows_amd64() {
   CGO_ENABLED=0 GOOS=windows GOARCH=amd64 go build -ldflags "$ldflags" -o ${appname}.exe
@@ -100,8 +101,7 @@ function build_images_to_hubdocker() {
   docker buildx build --build-arg ARG_LDFLAGS="$ldflags" --platform linux/amd64,linux/arm64 -t xxl6097/${appname}:${version} --push .
 
   docker tag ${appname}:${version} xxl6097/${appname}:latest
-  docker_push_result=$(docker buildx build --build-arg ARG_LDFLAGS="$ldflags" --platform linux/amd64,linux/arm64 -t xxl6097/${appname}:latest --push . 2>&1)
-  echo "docker pull xxl6097/${appname}:${version}"
+  docker buildx build --build-arg ARG_LDFLAGS="$ldflags" --platform linux/amd64,linux/arm64 -t xxl6097/${appname}:latest --push .
 }
 
 function build_images_to_conding() {
