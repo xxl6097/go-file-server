@@ -4,16 +4,6 @@ appversion=0.0.0
 versionDir="github.com/xxl6097/go-serverfile/internal/version"
 appdir="./cmd/app"
 
-function tag() {
-    appversion=$(getversion)
-    echo "current version:${appversion}"
-    git add .
-    git commit -m "release v${appversion}"
-    git tag -a v$appversion -m "release v${appversion}"
-    git push origin v$appversion
-    echo $appversion >version.txt
-}
-
 function getversion() {
   appversion=$(cat version.txt)
   if [ "$appversion" = "" ]; then
@@ -39,23 +29,41 @@ function getversion() {
   fi
 }
 
-function GetLDFLAGS() {
+
+
+function buildArgs() {
+  os_name=$(uname -s)
   APP_NAME=${appname}
-  APP_VERSION=${appversion}
   BUILD_VERSION=$(if [ "$(git describe --tags --abbrev=0 2>/dev/null)" != "" ]; then git describe --tags --abbrev=0; else git log --pretty=format:'%h' -n 1; fi)
   BUILD_TIME=$(TZ=Asia/Shanghai date +%FT%T%z)
   GIT_REVISION=$(git rev-parse --short HEAD)
   GIT_BRANCH=$(git name-rev --name-only HEAD)
   GO_VERSION=$(go version)
   ldflags="-s -w\
- -X '${versionDir}.AppVersion=${APP_VERSION}'\
  -X '${versionDir}.AppName=${APP_NAME}'\
+ -X '${versionDir}.AppVersion=${BUILD_VERSION}'\
  -X '${versionDir}.BuildVersion=${BUILD_VERSION}'\
  -X '${versionDir}.BuildTime=${BUILD_TIME}'\
  -X '${versionDir}.GitRevision=${GIT_REVISION}'\
  -X '${versionDir}.GitBranch=${GIT_BRANCH}'\
  -X '${versionDir}.GoVersion=${GO_VERSION}'"
-  echo "$ldflags"
+  #echo "$ldflags"
+}
+
+function initArgs() {
+  version=$(getversion)
+  echo "version:${version}"
+  rm -rf dist
+  tagAndGitPush
+  buildArgs
+}
+
+function tagAndGitPush() {
+    git add .
+    git commit -m "release v${version}"
+    git tag -a v$version -m "release v${version}"
+    git push origin v$version
+    echo $version >version.txt
 }
 
 function build_windows_amd64() {
@@ -201,7 +209,7 @@ function menu() {
   echo "7. harbor"
   echo "请输入编号:"
   read index
-  tag
+  initArgs
   case "$index" in
   [0]) (build_windows_amd64) ;;
   [1]) (build_linux_amd64) ;;
@@ -213,30 +221,6 @@ function menu() {
   [7]) (build_images_to_harbor_z4) ;;
   *) echo "exit" ;;
   esac
-
-  if ((index >= 4 && index <= 6)); then
-    # 获取命令的退出状态码
-    exit_status=$?
-    # 检查退出状态码
-    if [ $exit_status -eq 0 ]; then
-      echo "成功推送Docker"
-      echo $appversion >version.txt
-    else
-      echo "失败"
-      echo "【$docker_push_result】"
-    fi
-  fi
-  rm -rf files
-  git add .
-  git commit -m "$appversion"
-  git push --tags
 }
 
-function main() {
-  appversion=$(getversion)
-  echo "当前版本：$appversion"
-  git tag $appversion
-  GetLDFLAGS
-  menu
-}
-main
+menu
