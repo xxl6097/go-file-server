@@ -60,7 +60,7 @@ function tagAndGitPush() {
 
 function initArgs() {
   version=$(getversion)
-  echo "version:${version}"
+  echo "==>version:${version}"
   rm -rf dist
   tagAndGitPush
   buildArgs
