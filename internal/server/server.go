@@ -74,27 +74,6 @@ func NewFileServer(cfg *model.Configure) iface.IFileServer {
 	return &this
 }
 
-func (f *FileServer) makeFuncMap() {
-	f.funcMap = template.FuncMap{
-		"title": strings.Title,
-		"urlhash": func(path string) string {
-			httpFile, err := assets.Assets.Open(path)
-			if err != nil {
-				return path + "#no-such-file"
-			}
-			info, err := httpFile.Stat()
-			if err != nil {
-				return path + "#stat-error"
-			}
-			return fmt.Sprintf("%s?t=%d", path, info.ModTime().Unix())
-		},
-	}
-}
-
-func (s *FileServer) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	s.router.ServeHTTP(w, r)
-}
-
 func (f *FileServer) Serve() {
 	if f.config.PlistProxy != "" {
 		u, err := url.Parse(f.config.PlistProxy)
@@ -120,6 +99,27 @@ func (f *FileServer) Serve() {
 		err = srv.ListenAndServe()
 	}
 	log.Fatal(err)
+}
+
+func (f *FileServer) makeFuncMap() {
+	f.funcMap = template.FuncMap{
+		"title": strings.Title,
+		"urlhash": func(path string) string {
+			httpFile, err := assets.Assets.Open(path)
+			if err != nil {
+				return path + "#no-such-file"
+			}
+			info, err := httpFile.Stat()
+			if err != nil {
+				return path + "#stat-error"
+			}
+			return fmt.Sprintf("%s?t=%d", path, info.ModTime().Unix())
+		},
+	}
+}
+
+func (s *FileServer) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	s.router.ServeHTTP(w, r)
 }
 
 func (f *FileServer) makeHandleFunc() {

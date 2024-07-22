@@ -33,6 +33,7 @@ func (this *FileServer) makeConfig() {
 	this.AuthType = this.config.Auth.Type
 	this.NoLogin = this.config.NoLogin
 	this.DeepPathMaxDepth = this.config.DeepPathMaxDepth
+	log.Println(this)
 }
 
 func (f *FileServer) hbasicAuth() http.Handler {
