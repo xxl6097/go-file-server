@@ -17,6 +17,7 @@ type Configure struct {
 	Port             int      `yaml:"port"`
 	Root             string   `yaml:"root"`
 	Prefix           string   `yaml:"prefix"`
+	Showdir          bool     `yaml:"showdir"`
 	HTTPAuth         string   `yaml:"httpauth"`
 	Cert             string   `yaml:"cert"`
 	Key              string   `yaml:"key"`

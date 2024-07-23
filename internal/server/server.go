@@ -19,6 +19,7 @@ import (
 )
 
 type FileServer struct {
+	OldRoot          string
 	Root             string
 	Prefix           string
 	Upload           bool
@@ -31,6 +32,8 @@ type FileServer struct {
 	DeepPathMaxDepth int
 	NoIndex          bool
 	NoLogin          bool
+	ShowDir          bool
+	chgDirs          map[string]string
 
 	config  *model.Configure
 	indexes []model.IndexFileItem
@@ -54,10 +57,12 @@ func NewFileServer(cfg *model.Configure) iface.IFileServer {
 	}
 	log.Printf("root path: %s\n", root)
 	this := FileServer{
-		Root:   root,
-		config: cfg,
-		router: mux.NewRouter(),
-		Theme:  "black",
+		Root:    root,
+		OldRoot: root,
+		config:  cfg,
+		chgDirs: make(map[string]string),
+		router:  mux.NewRouter(),
+		Theme:   "black",
 		bufPool: sync.Pool{
 			New: func() interface{} { return make([]byte, 32*1024) },
 		},
@@ -127,7 +132,7 @@ func (f *FileServer) makeHandleFunc() {
 	f.router.HandleFunc("/-/ipa/link/{path:.*}", f.hIpaLink)
 	f.router.HandleFunc("/up", f.hUp).Methods("GET")
 	f.router.HandleFunc("/{path:.*}", f.hIndex).Methods("GET", "HEAD")
-	f.router.HandleFunc("/{path:.*}", f.hFile).Methods(http.MethodPut)
+	f.router.HandleFunc("/{path:.*}", f.hPutMethod).Methods(http.MethodPut)
 	f.router.HandleFunc("/{path:.*}", f.hUploadOrMkdir).Methods("POST")
 	f.router.HandleFunc("/{path:.*}", f.hDelete).Methods("DELETE")
 }

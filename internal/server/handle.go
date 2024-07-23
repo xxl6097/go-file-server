@@ -12,6 +12,7 @@ import (
 	"github.com/xxl6097/go-serverfile/pkg/ipa"
 	"github.com/xxl6097/go-serverfile/pkg/zip"
 	"io"
+	"io/ioutil"
 	"log"
 	"net/http"
 	"net/url"
@@ -120,15 +121,63 @@ func (f *FileServer) hUp(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func (f *FileServer) hFile(w http.ResponseWriter, r *http.Request) {
+func (f *FileServer) hPutMethod(w http.ResponseWriter, r *http.Request) {
 	path := mux.Vars(r)["path"]
 	realPath := f.getRealPath(r)
+	putType := r.FormValue("putType")
 
-	if r.FormValue("filesave") == "true" {
-		html.HFileSave(f.Root, f.Prefix, w, r)
-		return
-	}
 	log.Println("PUT", path, realPath)
+	switch putType {
+	case "savefile":
+		html.HFileSave(f.Root, f.Prefix, w, r)
+	case "showdir":
+		content, err := ioutil.ReadAll(r.Body)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+		realdir := string(content)
+		ok := strings.EqualFold(realdir, "/ok")
+		if file2.IsDirOrFileExist(realdir) || ok {
+			if ok {
+				realdir = f.OldRoot
+			}
+			log.Println("chg dir", realdir)
+			files, err1 := f.scanDir(realdir)
+			if err1 == nil {
+				if !strings.EqualFold(f.Root, f.OldRoot) {
+					args.DeleteConfigFile(f.Root)
+				}
+				f.chgDirs[realdir] = realdir
+				f.Root = realdir
+				args.CopyExtFile(f.Root)
+				w.Header().Set("Content-Type", "application/json")
+				w.Write(files)
+				return
+			}
+		}
+		http.Error(w, realdir, http.StatusInternalServerError)
+		log.Println(putType, realdir)
+	case "token":
+		content, err := ioutil.ReadAll(r.Body)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+		token := string(content)
+		log.Println("token", token)
+		userpass := strings.SplitN(f.config.Auth.HTTP, ":", 2)
+		if len(userpass) == 2 {
+			if strings.EqualFold(userpass[1], token) {
+				w.Write([]byte("Success"))
+				return
+			}
+		}
+		http.Error(w, "Chg forbidden", http.StatusUnauthorized)
+
+	default:
+		http.Error(w, "Chg forbidden", http.StatusForbidden)
+	}
 }
 
 func (f *FileServer) hDelete(w http.ResponseWriter, req *http.Request) {
@@ -153,10 +202,6 @@ func (f *FileServer) hDelete(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 	w.Write([]byte("Success"))
-}
-
-func (f *FileServer) hAdmin(w http.ResponseWriter, r *http.Request) {
-	fmt.Println(r)
 }
 
 func (f *FileServer) hUploadOrMkdir(w http.ResponseWriter, req *http.Request) {
@@ -299,7 +344,7 @@ func (f *FileServer) hIndex(w http.ResponseWriter, r *http.Request) {
 		if r.Method == "HEAD" {
 			return
 		}
-		args.CopyConfigFile(r.Host)
+		args.CopyConfigFile(f.Root, r.Host)
 		f.renderHTML(w, "assets/index.html", f)
 	} else {
 		if filepath.Base(path) == args.YAMLCONF {

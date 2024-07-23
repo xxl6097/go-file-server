@@ -36,6 +36,11 @@ function showErrorMessage(jqXHR) {
   console.error(errMsg)
 }
 
+function ErrorMessage(errMsg) {
+  alert('Error Message',errMsg);
+  console.error(errMsg)
+}
+
 
 var vm = new Vue({
   el: "#app",
@@ -73,13 +78,6 @@ var vm = new Vue({
     computedFiles: function () {
       var that = this;
       that.preview.filename = null;
-
-      let array = [1, 2, 3, 4, 5];
-      let index = array.indexOf(6); // 返回 2
-      let exists = index !== -1; // 返回 true
-      console.log('computedFiles',index,exists)
-
-      var that = this
       $.ajax({
         url: '/.ext',
         method: 'GET',
@@ -91,9 +89,6 @@ var vm = new Vue({
           let cleanedLines = lines.map(line => line.replace(/\r$/, ''));
           console.log(cleanedLines);
           that.exts = cleanedLines;
-          let index = that.exts.indexOf('js'); // 返回 2
-          let exists = index !== -1; // 返回 true
-          console.log('js',index,exists)
         },
         error: function (err) {
           console.log(err)
@@ -143,7 +138,6 @@ var vm = new Vue({
     },
   },
   created: function () {
-
     this.myDropzone = new Dropzone("#upload-form", {
       paramName: "file",
       maxFilesize: 10240,
@@ -342,7 +336,7 @@ var vm = new Vue({
       $('#file-raw-modal').modal('hide');
       var textToUpload = $('#file-raw-content').val();
       console.log('text',textToUpload)
-      var apipath = this.getEncodePath(this.item.name) + "?filesave=true";
+      var apipath = this.getEncodePath(this.item.name) + "?putType=savefile";
       $.ajax({
         url: apipath,
         dataType: "text",
@@ -445,6 +439,74 @@ var vm = new Vue({
     },
     loadAll: function () {
       // TODO: move loadFileList here
+    },
+    checkToken: function (sucess) {
+      var token = localStorage.getItem('token');
+      if (!token) {
+        token = window.prompt("please input token", "")
+        if (!token) {
+          return
+        }
+      }
+      var apipath = "/token?putType=token";
+      $.ajax({
+        url: apipath,
+        method: "PUT",
+        dataType: "text",
+        contentType: 'text/plain',
+        data: token,
+        success: function (res) {
+          console.log(res)
+          localStorage.setItem('token', token);
+          sucess()
+        },
+        error: function (jqXHR, textStatus, errorThrown) {
+          console.log(jqXHR, textStatus, errorThrown)
+          ErrorMessage(jqXHR.statusText)
+          localStorage.removeItem('token')
+        }
+      })
+    },
+    checkDirectory: function (callback) {
+      this.checkToken(()=>{
+        var directory = window.prompt("current path: " + location.pathname + "\nplease enter the directory", "")
+        console.log('onShowDirClick',directory)
+        if (!directory) {
+          return
+        }
+        if (window.confirm('confirm change directory?\n'+ directory)) {
+          var encodePath = this.getEncodePath(directory)
+          var apipath = "/showdir?putType=showdir";
+          console.log('encodePath', apipath, encodePath)
+          $.ajax({
+            url: apipath,
+            method: "PUT",
+            dataType: "text",
+            contentType: 'text/plain',
+            data: encodePath,
+            success: function (res) {
+              console.log(res)
+              //loadFileList()
+              callback(JSON.parse(res),directory)
+            },
+            error: function (jqXHR, textStatus, errorThrown) {
+              ErrorMessage(jqXHR.statusText)
+            }
+          })
+        }
+      });
+    },
+    onShowDirClick: function () {
+      //$('.dropdown-toggle').dropdown();
+      this.checkDirectory((res,directory)=>{
+        res.files = _.sortBy(res.files, function (f) {
+          var weight = f.type == 'dir' ? 1000 : 1;
+          return -weight * f.mtime;
+        })
+        vm.files = res.files;
+        vm.auth = res.auth;
+        vm.updateBreadcrumb('');
+      })
     },
   }
 })

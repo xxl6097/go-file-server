@@ -111,6 +111,7 @@
 
 
   </nav>
+
   <div class="container">
     <div class="col-md-12">
       <ol class="breadcrumb">
@@ -144,6 +145,26 @@
                 <button class="btn btn-xs btn-default" v-show="auth.delete" @click="makeDirectory">
                   New Folder <i class="fa fa-folder"></i>
                 </button>
+
+                [[if .ShowDir ]]
+                <button class="btn btn-xs btn-default" @click="onShowDirClick">
+                  Show Dir <i class="fa fa-arrow-circle-down"></i>
+                </button>
+                [[end]]
+
+
+
+<!--                <div class="dropdown" v-show="auth.showdir">-->
+<!--                  <button class="btn btn-xs btn-default" type="button" id="dropdownMenu1" data-toggle="dropdown" aria-expanded="true">-->
+<!--                    目录 <i class="fa fa-arrow-circle-down"></i>-->
+<!--                  </button>-->
+<!--                  <ul class="dropdown-menu" role="menu" aria-labelledby="dropdownMenu1">-->
+<!--                    <li role="presentation"><a role="menuitem" tabindex="-1" href="#">选项 1</a></li>-->
+<!--                    <li role="presentation"><a role="menuitem" tabindex="-1" href="#">选项 2</a></li>-->
+<!--                    <li role="presentation"><a role="menuitem" tabindex="-1" href="#">选项 3</a></li>-->
+<!--                  </ul>-->
+<!--                </div>-->
+
               </div>
             </td>
           </tr>

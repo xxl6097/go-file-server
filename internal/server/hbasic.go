@@ -32,6 +32,7 @@ func (this *FileServer) makeConfig() {
 	this.Delete = this.config.Delete
 	this.AuthType = this.config.Auth.Type
 	this.NoLogin = this.config.NoLogin
+	this.ShowDir = this.config.Showdir
 	this.DeepPathMaxDepth = this.config.DeepPathMaxDepth
 	log.Println(this)
 }
