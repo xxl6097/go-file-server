@@ -151,8 +151,12 @@ func GetTimeFormat(format string) string {
 }
 
 func ReadExt() []string {
+	filepath := "./.ext"
+	if _, err := os.Stat(filepath); os.IsNotExist(err) {
+		return nil
+	}
 	// 打开文件
-	file, err := os.Open("./.ext")
+	file, err := os.Open(filepath)
 	if err != nil {
 		fmt.Println("Error opening file:", err)
 		return nil

@@ -12,7 +12,6 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
-	"strings"
 )
 
 func (f *FileServer) hZip(w http.ResponseWriter, r *http.Request) {
@@ -69,6 +68,44 @@ func (f *FileServer) hRaw(w http.ResponseWriter, r *http.Request) {
 	w.Write(fileContent)
 }
 
+func (f *FileServer) scanDir(realPath string) ([]byte, error) {
+	infos, err := ioutil.ReadDir(realPath)
+	if err != nil {
+		return nil, err
+	}
+	fileInfoMap := make(map[string]os.FileInfo, 0)
+	for _, info := range infos {
+		fileInfoMap[info.Name()] = info
+	}
+
+	maxDepth := f.DeepPathMaxDepth
+
+	lrs := make([]model.HTTPFileInfo, 0)
+	for path, info := range fileInfoMap {
+		lr := model.HTTPFileInfo{
+			Name:    info.Name(),
+			Path:    path,
+			ModTime: info.ModTime().UnixNano() / 1e6,
+		}
+		if info.IsDir() {
+			name := file.DeepPath(realPath, info.Name(), maxDepth)
+			lr.Name = name
+			lr.Path = filepath.Join(filepath.Dir(path), name)
+			lr.Type = "dir"
+			lr.Size = f.historyDirSize(lr.Path)
+		} else {
+			lr.Type = "file"
+			lr.Size = info.Size() // formatSize(info)
+		}
+		lrs = append(lrs, lr)
+	}
+
+	data, _ := json.Marshal(map[string]interface{}{
+		"files": lrs,
+	})
+	return data, nil
+}
+
 func (f *FileServer) hJSONList(w http.ResponseWriter, r *http.Request) {
 	requestPath := mux.Vars(r)["path"]
 	realPath := f.getRealPath(r)
@@ -83,33 +120,42 @@ func (f *FileServer) hJSONList(w http.ResponseWriter, r *http.Request) {
 	fileInfoMap := make(map[string]os.FileInfo, 0)
 
 	if search != "" {
-		if strings.HasPrefix(search, f.config.Keyword) {
-			paths := strings.Split(search, "-")
-			if paths != nil && len(paths) >= 3 {
-				if strings.EqualFold(paths[1], f.config.Auth.HTTP) {
-					ok := file.IsDirOrFileExist(paths[2])
-					log.Println("dir path:", ok, paths[2])
-					if ok {
-						f.Root = paths[2]
-					}
-				} else {
-					f.Root = f.config.Root
-				}
-			} else {
-				f.Root = f.config.Root
-			}
-		} else {
-			results := f.findIndex(search)
-			if len(results) > 50 { // max 50
-				results = results[:50]
-			}
-			for _, item := range results {
-				if filepath.HasPrefix(item.Path, requestPath) {
-					fileInfoMap[item.Path] = item.Info
-				}
+		//if strings.HasPrefix(search, f.config.Keyword) {
+		//	paths := strings.Split(search, "-")
+		//	if paths != nil && len(paths) >= 3 {
+		//		if strings.EqualFold(paths[1], f.config.Auth.HTTP) {
+		//			ok := file.IsDirOrFileExist(paths[2])
+		//			log.Println("dir path:", ok, paths[2])
+		//			if ok {
+		//				realPath = paths[2]
+		//				f.Root = realPath
+		//				infos, err := ioutil.ReadDir(realPath)
+		//				if err != nil {
+		//					http.Error(w, err.Error(), 500)
+		//					return
+		//				}
+		//				for _, info := range infos {
+		//					fileInfoMap[filepath.Join(requestPath, info.Name())] = info
+		//				}
+		//			}
+		//		} else {
+		//			f.Root = f.config.Root
+		//		}
+		//	} else {
+		//		f.Root = f.config.Root
+		//	}
+		//} else {
+		//
+		//}
+		results := f.findIndex(search)
+		if len(results) > 50 { // max 50
+			results = results[:50]
+		}
+		for _, item := range results {
+			if filepath.HasPrefix(item.Path, requestPath) {
+				fileInfoMap[item.Path] = item.Info
 			}
 		}
-
 	} else {
 		infos, err := ioutil.ReadDir(realPath)
 		if err != nil {
@@ -117,7 +163,8 @@ func (f *FileServer) hJSONList(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		for _, info := range infos {
-			fileInfoMap[filepath.Join(requestPath, info.Name())] = info
+			filePath := filepath.Join(requestPath, info.Name())
+			fileInfoMap[filePath] = info
 		}
 	}
 

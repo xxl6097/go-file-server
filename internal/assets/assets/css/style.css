@@ -6,6 +6,13 @@ body {
     margin-bottom: 1em;
 }
 
+.drop-upload {
+    /*border: 2px dashed #000;*/
+    width: 100%;
+    height: 100%;
+    /*height: 100%;*/
+}
+
 
 textarea {
     width: 100%;

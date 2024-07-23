@@ -65,6 +65,7 @@ func ParseFlags() error {
 	kingpin.Flag("auth-openid", "OpenID auth identity url").StringVar(&cfg.Auth.OpenID)
 	kingpin.Flag("theme", "web theme, one of <black|green>").StringVar(&cfg.Theme)
 	kingpin.Flag("upload", "enable upload support").BoolVar(&cfg.Upload)
+	kingpin.Flag("showdir", "enable showdir support").BoolVar(&cfg.Showdir)
 	kingpin.Flag("delete", "enable delete support").BoolVar(&cfg.Delete)
 	kingpin.Flag("nologin", "nologin").BoolVar(&cfg.NoLogin)
 	kingpin.Flag("xheaders", "used when behide nginx").BoolVar(&cfg.XHeaders)
@@ -106,23 +107,24 @@ func LoadAgrs() *model.Configure {
 	cfg.Title = fmt.Sprintf("%s %s", cfg.Title, version.BuildVersion)
 	return &cfg
 }
-func copys() {
-	readmepath := filepath.Join(cfg.Root, ".ext")
+
+func CopyExtFile(root string) {
+	readmepath := filepath.Join(root, ".ext")
 	if _, err := os.Stat(readmepath); os.IsNotExist(err) {
 		file.CopyFile(bytes.NewReader([]byte(assets.ExtArrayContent)), readmepath)
+		log.Println("copy file success", readmepath)
 	}
+}
 
-	ghspath := filepath.Join(cfg.Root, ".ghs.yml")
+func CopyYmlFile(root string) {
+	ghspath := filepath.Join(root, ".ghs.yml")
 	if _, err := os.Stat(ghspath); os.IsNotExist(err) {
 		file.CopyFile(bytes.NewReader([]byte(assets.GhsContent)), ghspath)
 	}
 }
 
-func CopyConfigFile(newstring string) {
-	if isCopyReadMe {
-		return
-	}
-	readmepath := filepath.Join(cfg.Root, "README.md")
+func CopyReadMeFile(root, newstring string) {
+	readmepath := filepath.Join(root, "README.md")
 	if _, err := os.Stat(readmepath); os.IsNotExist(err) {
 		isCopyReadMe = true
 		configData, err1 := file.ReadAssetsFile("assets/README.md", assets.AssetsFS)
@@ -133,6 +135,28 @@ func CopyConfigFile(newstring string) {
 			file.CopyFile(bytes.NewReader([]byte(content)), readmepath)
 		}
 	}
-	copys()
-	file.ReadExt()
+}
+
+func CopyConfigFile(root, newstring string) {
+	if isCopyReadMe {
+		return
+	}
+	CopyReadMeFile(root, newstring)
+	CopyExtFile(root)
+	CopyYmlFile(root)
+}
+
+func DeleteConfigFile(root string) {
+	readmepath := filepath.Join(root, "README.md")
+	if _, err := os.Stat(readmepath); !os.IsNotExist(err) {
+		os.Remove(readmepath)
+	}
+	readmepath = filepath.Join(root, ".ghs.yml")
+	if _, err := os.Stat(readmepath); !os.IsNotExist(err) {
+		os.Remove(readmepath)
+	}
+	readmepath = filepath.Join(root, ".ext")
+	if _, err := os.Stat(readmepath); !os.IsNotExist(err) {
+		os.Remove(readmepath)
+	}
 }
