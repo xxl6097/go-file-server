@@ -501,6 +501,7 @@ var vm = new Vue({
     },
     onShowDirClick: function () {
       //$('.dropdown-toggle').dropdown();
+      $('#loadingModal').modal('show');
       this.checkDirectory((res,directory)=>{
         res.files = _.sortBy(res.files, function (f) {
           var weight = f.type == 'dir' ? 1000 : 1;
