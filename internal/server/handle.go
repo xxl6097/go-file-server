@@ -131,6 +131,15 @@ func (f *FileServer) hPutMethod(w http.ResponseWriter, r *http.Request) {
 	case "savefile":
 		html.HFileSave(f.Root, f.Prefix, w, r)
 	case "showdir":
+		token := r.Header.Get("Token")
+		userpass := strings.SplitN(f.config.Auth.HTTP, ":", 2)
+		if len(userpass) == 2 {
+			if !strings.EqualFold(userpass[1], token) {
+				http.Error(w, "token error", http.StatusUnauthorized)
+				return
+			}
+		}
+
 		content, err := ioutil.ReadAll(r.Body)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)

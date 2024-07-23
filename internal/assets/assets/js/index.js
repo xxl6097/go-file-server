@@ -458,7 +458,7 @@ var vm = new Vue({
         success: function (res) {
           console.log(res)
           localStorage.setItem('token', token);
-          sucess()
+          sucess(token)
         },
         error: function (jqXHR, textStatus, errorThrown) {
           console.log(jqXHR, textStatus, errorThrown)
@@ -468,7 +468,7 @@ var vm = new Vue({
       })
     },
     checkDirectory: function (callback) {
-      this.checkToken(()=>{
+      this.checkToken((token)=>{
         var directory = window.prompt("current path: " + location.pathname + "\nplease enter the directory", "")
         console.log('onShowDirClick',directory)
         if (!directory) {
@@ -480,6 +480,9 @@ var vm = new Vue({
           console.log('encodePath', apipath, directory)
           $.ajax({
             url: apipath,
+            headers: {
+              'Token': token
+            },
             method: "PUT",
             dataType: "text",
             contentType: 'text/plain',
