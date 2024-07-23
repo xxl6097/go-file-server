@@ -475,15 +475,15 @@ var vm = new Vue({
           return
         }
         if (window.confirm('confirm change directory?\n'+ directory)) {
-          var encodePath = this.getEncodePath(directory)
+          //var encodePath = this.getEncodePath(directory)
           var apipath = "/showdir?putType=showdir";
-          console.log('encodePath', apipath, encodePath)
+          console.log('encodePath', apipath, directory)
           $.ajax({
             url: apipath,
             method: "PUT",
             dataType: "text",
             contentType: 'text/plain',
-            data: encodePath,
+            data: directory,
             success: function (res) {
               console.log(res)
               //loadFileList()

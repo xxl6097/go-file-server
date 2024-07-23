@@ -137,7 +137,7 @@ func (f *FileServer) hPutMethod(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		realdir := string(content)
-		ok := strings.EqualFold(realdir, "/ok")
+		ok := strings.EqualFold(realdir, "ok")
 		if file2.IsDirOrFileExist(realdir) || ok {
 			if ok {
 				realdir = f.OldRoot
@@ -155,8 +155,10 @@ func (f *FileServer) hPutMethod(w http.ResponseWriter, r *http.Request) {
 				w.Write(files)
 				return
 			}
+		} else {
+			http.Error(w, realdir+" is not directory", http.StatusInternalServerError)
 		}
-		http.Error(w, realdir, http.StatusInternalServerError)
+
 		log.Println(putType, realdir)
 	case "token":
 		content, err := ioutil.ReadAll(r.Body)
