@@ -202,7 +202,7 @@ function m() {
   initArgs
   if (( inputData[0] == 8 )); then
      buildall
-#     build_images_to_harbor_z4
+     build_images_to_harbor_z4
   else
      (build_menu "${inputData[@]}")
   fi
