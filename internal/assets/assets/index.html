@@ -24,6 +24,8 @@
 <!--[[end]]-->
 <div id="dropupload" class="drop-upload" ondragenter="dragEnter(event)" ondragover="dragEnter(event)" ondragleave="dragLeave(event)" ondrop="drop(event)" ondragend="dragEnd(event)">
 
+<!--  <input type="file" id="fileInput" name="files[]" onchange="handleFiles(this.files)" multiple>-->
+
   <nav class="navbar navbar-default" ondragenter="dragEnter(event)" ondragover="dragEnter(event)" ondragleave="dragLeave(event)" ondrop="drop(event)" ondragend="dragEnd(event)">
     <div class="container">
       <div class="container">
@@ -152,9 +154,9 @@
               New Folder <i class="fa fa-folder"></i>
             </button>
 
-            <button class="btn btn-xs btn-default" @click="onTest">
-              Tester
-            </button>
+<!--            <button class="btn btn-xs btn-default" @click="onTest">-->
+<!--              Tester-->
+<!--            </button>-->
 
             [[if .ShowDir ]]
             <button class="btn btn-xs btn-default" @click="onShowDirClick">
@@ -387,6 +389,67 @@
     <!-- 网络加载状态 end -->
 
 
+    <!-- File list start -->
+    <div id="file-list-modal" class="modal fade" tabindex="-1" role="dialog">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <button id="upload-close-id" type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+            <h4 class="modal-title">
+              <span id="file-list-title"></span>
+            </h4>
+          </div>
+          <div class="modal-body">
+            <ul id="file_list" style="padding-left: 10px;color: green;">
+            </ul>
+            <input type="text" id="up_file_path_id" autofocus class="form-control"
+                   style="margin-bottom: 5px; margin-top: 5px" placeholder="please input path">
+
+            <div id="modal-progress-id" class="progress modal-progress">
+              <div id="myProgressBar" class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" style="width: 0%;" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">
+                <!-- 进度数字显示 -->
+                <span>0%</span>
+              </div>
+            </div>
+            <span id="upload-speed-id" style="color: red"></span>
+          </div>
+
+          <div id="upload-footer-id" class="modal-footer">
+            <button id="on-upload-ok" type="button" class="btn btn-default">Upload</button>
+            <button id="on-upload-cancel" type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+          </div>
+
+        </div>
+      </div>
+    </div>
+    <!-- File list modal end -->
+
+
+
+    <!-- File alert modal start -->
+    <div id="file-alert-modal" class="modal fade" tabindex="-1" role="dialog">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+            <h4 class="modal-title">
+              <span id="file-alert-title"></span>
+            </h4>
+          </div>
+          <div class="modal-body">
+            <p id="file-alert-content"></p>
+          </div>
+
+          <div class="modal-footer">
+            <button id="alert-id" type="button" class="btn btn-default">confirm</button>
+            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+          </div>
+
+        </div>
+      </div>
+    </div>
+    <!-- File alert modal end -->
+
 
   </div>
   <div class="col-md-12">
@@ -412,6 +475,7 @@
 <script src="[[.Prefix]]/-/assets/js/underscore-min.js"></script>
 <script src="[[.Prefix]]/-/assets/js/clipboard-1.5.12.min.js"></script>
 <script src="[[.Prefix]]/-/assets/bootstrap-3.3.5/js/bootstrap.min.js"></script>
+<script src="[[.Prefix]]/-/assets/js/util.js"></script>
 <script src='[[.Prefix]]/-/assets/[["js/index.js" | urlhash ]]'></script>
 <script src="[[.Prefix]]/-/assets/js/drop.js"></script>
 <!-- <script src="[[.Prefix]]/-/assets/js/index.js"></script> -->

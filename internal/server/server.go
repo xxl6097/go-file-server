@@ -79,6 +79,17 @@ func NewFileServer(cfg *model.Configure) iface.IFileServer {
 	return &this
 }
 
+func (f *FileServer) makeHandleFunc() {
+	f.router.HandleFunc("/-/ipa/plist/{path:.*}", f.hPlist)
+	f.router.HandleFunc("/-/ipa/link/{path:.*}", f.hIpaLink)
+	f.router.HandleFunc("/up", f.hUp).Methods("GET")
+	f.router.HandleFunc("/{path:.*}", f.hIndex).Methods("GET", "HEAD")
+	f.router.HandleFunc("/{path:.*}", f.hPutMethod).Methods(http.MethodPut)
+	f.router.HandleFunc("/{path:.*}", f.hUpload).Methods("POST")
+	//f.router.HandleFunc("/{path:.*}", f.hUploadOrMkdir).Methods("POST")
+	f.router.HandleFunc("/{path:.*}", f.hDelete).Methods("DELETE")
+}
+
 func (f *FileServer) Serve() {
 	if f.config.PlistProxy != "" {
 		u, err := url.Parse(f.config.PlistProxy)
@@ -125,16 +136,6 @@ func (f *FileServer) makeFuncMap() {
 
 func (s *FileServer) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	s.router.ServeHTTP(w, r)
-}
-
-func (f *FileServer) makeHandleFunc() {
-	f.router.HandleFunc("/-/ipa/plist/{path:.*}", f.hPlist)
-	f.router.HandleFunc("/-/ipa/link/{path:.*}", f.hIpaLink)
-	f.router.HandleFunc("/up", f.hUp).Methods("GET")
-	f.router.HandleFunc("/{path:.*}", f.hIndex).Methods("GET", "HEAD")
-	f.router.HandleFunc("/{path:.*}", f.hPutMethod).Methods(http.MethodPut)
-	f.router.HandleFunc("/{path:.*}", f.hUploadOrMkdir).Methods("POST")
-	f.router.HandleFunc("/{path:.*}", f.hDelete).Methods("DELETE")
 }
 
 func (f *FileServer) index() {

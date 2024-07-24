@@ -154,6 +154,17 @@ var vm = new Vue({
     });
   },
   methods: {
+    onDialogOpen: function (title,content,confirm){
+      $("#alert-id").click(function() {
+        if(confirm){
+          confirm()
+        }
+        $("#file-alert-modal").modal("hide");
+      });
+      $("#file-alert-title").text(title);
+      $("#file-alert-content").text(content);
+      $("#file-alert-modal").modal("show");
+    },
     getEncodePath: function (filepath) {
       return pathJoin([location.pathname].concat(filepath.split("/").map(v => encodeURIComponent(v))))
     },
@@ -382,20 +393,26 @@ var vm = new Vue({
     deletePathConfirm: function (f, e) {
       e.preventDefault();
       if (!e.altKey) { // skip confirm when alt pressed
-        if (!window.confirm("Delete " + f.name + " ?")) {
-          return;
-        }
+        // if (!window.confirm("Delete " + f.name + " ?")) {
+        //   return;
+        // }
+        this.onDialogOpen('Delete Dialog','Are you sure you want to delete ' + f.name,()=>{
+          showLoding()
+          $.ajax({
+            url: this.getEncodePath(f.name),
+            method: 'DELETE',
+            success: function (res) {
+              loadFileList()
+              hideLoding()
+            },
+            error: function (jqXHR, textStatus, errorThrown) {
+              showErrorMessage(jqXHR)
+              hideLoding()
+            }
+          });
+        });
       }
-      $.ajax({
-        url: this.getEncodePath(f.name),
-        method: 'DELETE',
-        success: function (res) {
-          loadFileList()
-        },
-        error: function (jqXHR, textStatus, errorThrown) {
-          showErrorMessage(jqXHR)
-        }
-      });
+
     },
     updateBreadcrumb: function (pathname) {
       var pathname = decodeURI(pathname || location.pathname || "/");
@@ -553,13 +570,6 @@ function loadFileOrDir(reqPath) {
     });
   }
 
-}
-
-function showLoding() {
-  $('#loadingModal').modal('show');
-}
-function hideLoding() {
-  $('#loadingModal').modal('hide');
 }
 
 function loadFileList(pathname) {

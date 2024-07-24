@@ -214,6 +214,83 @@ func (f *FileServer) hDelete(w http.ResponseWriter, req *http.Request) {
 	}
 	w.Write([]byte("Success"))
 }
+func (f *FileServer) hUpload(w http.ResponseWriter, r *http.Request) {
+	dirpath := f.getRealPath(r)
+	// check auth
+	auth := f.readAccessConf(dirpath)
+	if !auth.CanUpload(r) {
+		http.Error(w, "Upload forbidden", http.StatusForbidden)
+		return
+	}
+	//ParseMultipartForm将请求的主体作为multipart/form-data解析。请求的整个主体都会被解析，得到的文件记录最多 maxMemery字节保存在内存，其余部分保存在硬盘的temp文件里。如果必要，ParseMultipartForm会自行调用 ParseForm。重复调用本方法是无意义的
+	//设置内存大小
+	err := r.ParseMultipartForm(32 << 20)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	m := r.MultipartForm
+	fileHeaders := m.File["file"]
+	if fileHeaders == nil || len(fileHeaders) == 0 {
+		http.Error(w, "please insert file filed into MultipartForm", http.StatusForbidden)
+		return
+	}
+
+	if _, err1 := os.Stat(dirpath); os.IsNotExist(err1) {
+		if err2 := os.MkdirAll(dirpath, os.ModePerm); err2 != nil {
+			log.Println("Create directory:", err2)
+			http.Error(w, "Directory create "+err2.Error(), http.StatusInternalServerError)
+			return
+		}
+	}
+
+	filesurl := []string{}
+	for _, header := range fileHeaders {
+		fileName := header.Filename
+		fileSize := header.Size
+		file, err2 := header.Open()
+		if err2 != nil || file == nil {
+			http.Error(w, err2.Error(), http.StatusForbidden)
+			return
+		}
+		log.Println(fileName, fileSize)
+		if err1 := file2.CheckFilename(fileName); err1 != nil {
+			http.Error(w, err1.Error(), http.StatusForbidden)
+			return
+		}
+		dstPath := filepath.Join(dirpath, fileName)
+		//如果文件存在，则旧文件备份，以日期命名
+		file2.BackupFile(dstPath)
+
+		dst, err1 := os.Create(dstPath)
+		if err1 != nil {
+			log.Println("Create file:", err1)
+			http.Error(w, "File create "+err1.Error(), http.StatusInternalServerError)
+			return
+		}
+
+		buf := f.bufPool.Get().([]byte)
+		defer f.bufPool.Put(buf)
+		_, copyErr := io.CopyBuffer(dst, file, buf)
+		dst.Close()
+		if copyErr != nil {
+			log.Println("Handle upload file:", err)
+			http.Error(w, copyErr.Error(), http.StatusInternalServerError)
+			return
+		}
+		//filepath := dstPath[len(f.Root):]
+		fileurl := fmt.Sprintf("http://%s/%s", r.Host, dstPath)
+		filesurl = append(filesurl, fileurl)
+	}
+
+	log.Println(filesurl)
+	w.Header().Set("Content-Type", "application/json;charset=utf-8")
+	json.NewEncoder(w).Encode(map[string]interface{}{
+		"success":     true,
+		"destination": filesurl,
+	})
+}
 
 func (f *FileServer) hUploadOrMkdir(w http.ResponseWriter, req *http.Request) {
 	dirpath := f.getRealPath(req)

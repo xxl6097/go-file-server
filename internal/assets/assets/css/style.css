@@ -36,6 +36,9 @@ body {
         opacity: 0;
     }
 }
+.modal-progress{
+    display: none;
+}
 .model-loading{
     position: fixed;
     justify-content: center;

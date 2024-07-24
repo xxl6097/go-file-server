@@ -53,6 +53,170 @@ function drop(event) {
     var dt = event.dataTransfer;
     var files = dt.files;
     if (files.length > 0) {
-        alert("文件已拖拽上传！");
+        // alert("文件已拖拽上传！");
+        handleFiles(files)
     }
+}
+
+function formatBytes(bytes, decimals = 2) {
+    if (bytes === 0) return '0 Bytes';
+    const k = 1024;
+    const dm = decimals < 0 ? 0 : decimals;
+    const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i];
+}
+
+function handleFiles(files) {
+    var upfiles = new Array();
+    var fileList = document.getElementById('file_list');
+    while (fileList.firstChild) {
+        fileList.removeChild(fileList.firstChild);
+    }
+    $('#upload-footer-id').css('display', 'block');
+    $('#upload-close-id').css('display', 'block');
+    $('#upload-speed-id').css('display', 'none');
+    for (var i = 0; i < files.length; i++) {
+        var file = files[i];
+        var listItem = document.createElement('li');
+        listItem.textContent = file.name + ' - ' + formatBytes(file.size);
+        fileList.appendChild(listItem);
+        upfiles.push(file)
+    }
+
+    var progressBar = $('#myProgressBar');
+    sucess = function (){
+        $("#file-list-modal").modal("hide");
+        while (fileList.firstChild) {
+            fileList.removeChild(fileList.firstChild);
+        }
+        hideLoding()
+        loadFileList()
+    }
+    failed = function (){
+        $("#file-list-modal").modal("hide");
+        while (fileList.firstChild) {
+            fileList.removeChild(fileList.firstChild);
+        }
+        hideLoding()
+    }
+
+    processEvent = function (event){
+        $('#modal-progress-id').css('display', 'block');
+        var percentComplete = (event.loaded / event.total) * 100;
+        var roundedResult = percentComplete.toFixed(1);
+
+        progressBar.css("width", (percentComplete) + "%").attr("aria-valuenow", (percentComplete).toString());
+        progressBar.find('span').text(roundedResult + '%');
+    }
+    speedEvent = function (speedText,progress){
+        progressBar.value = progress;
+        $('#upload-speed-id').css('display', 'block');
+        $("#upload-speed-id").text('speed:' + speedText);
+    }
+
+    $("#on-upload-ok").click(function() {
+        $('#upload-footer-id').css('display', 'none');
+        $('#upload-close-id').css('display', 'none');
+        var inputValue = $("#up_file_path_id").val();
+        showLoding()
+        onUploadClick(upfiles,inputValue,sucess,failed,processEvent,speedEvent)
+    });
+
+    $("#on-upload-cancel").click(function() {
+        while (fileList.firstChild) {
+            fileList.removeChild(fileList.firstChild);
+        }
+    });
+
+    //modal.style.display = 'block';
+    $("#file-list-title").text('Files Upload');
+    $("#file-list-modal").modal("show");
+}
+
+function onUploadClick(upfiles,path,sucess,failed,processEvent,speedEvent) {
+    var filecount = upfiles.length
+    if (filecount === 0){
+        console.log('请选择文件上传～')
+        failed()
+    }else{
+        var formData = new FormData();
+        var total_size = 0;
+        for (var i = 0; i < filecount; i++) {
+            var file = upfiles.pop()
+            formData.append('file', file);
+            total_size += file.size
+        }
+        console.log('total_size',total_size)
+        upload(formData,total_size,path,sucess,failed,processEvent,speedEvent)
+    }
+}
+
+function upload(formData,total_size,path,sucess,failed,processEvent,speedEvent){
+    var xhr = new XMLHttpRequest();
+    const formatSpeed = (bytesPerSecond) => {
+        const kiloBytesPerSecond = bytesPerSecond / (1024*1024);
+        return kiloBytesPerSecond.toFixed(2) + ' MB/s';
+    };// 记录上传开始时间
+
+    let startTime;
+    let startBytes = 0;
+    startTime = new Date().getTime();
+
+    // 监听进度事件
+    xhr.upload.addEventListener('progress', function (event) {
+        console.log('progress',event)
+        if (event.lengthComputable) {
+            // var percentComplete = (event.loaded / event.total) * 100;
+            // document.getElementById('progress').style.width = percentComplete + '%';
+            // var roundedResult = percentComplete.toFixed(1);
+            // document.getElementById('progress').textContent = roundedResult + '%';
+        }
+        if (processEvent){
+            processEvent(event)
+        }
+
+        const currentTime = new Date().getTime();
+        const elapsedSeconds = (currentTime - startTime) / 1000;
+        const uploadedBytes = event.loaded;
+        const speed = (uploadedBytes - startBytes) / elapsedSeconds;
+
+        // 更新上传速度
+        const speedText = formatSpeed(speed);
+        // 更新进度条
+        const progress = (uploadedBytes / total_size) * 100;
+
+        // speedElement.textContent = `上传速度: ${speedText}`;
+        // progressBar.value = progress;
+
+        // 更新起始时间和字节数
+        startTime = currentTime;
+        startBytes = uploadedBytes;
+        if (speedEvent){
+            speedEvent(speedText,progress)
+        }
+    });
+
+    xhr.onreadystatechange = function () {
+        console.log('xhr',xhr)
+        if (xhr.readyState === 1) {
+            // 在这里处理loading状态，例如显示loading动画
+            console.log('Loading...');
+        }else if (xhr.readyState === 4) {
+            if (xhr.status === 200 && xhr.response && xhr.response.length > 0) {
+                // 文件上传成功
+                console.log('File uploaded successfully!');
+                console.log(xhr)
+                sucess()
+                console.log('成功了哦')
+            } else {
+                // 文件上传失败
+                console.error('文件上传失败，请重新上传',xhr.status,xhr.statusText);
+                failed()
+            }
+        }
+    };
+    var url = `${path}`
+    xhr.open('POST', url, true);
+    xhr.send(formData);
 }
