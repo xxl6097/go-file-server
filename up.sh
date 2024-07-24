@@ -1,20 +1,39 @@
 #!/bin/bash
-if [[ $1 == /* ]]; then
-    file="-F \"file=@$1\""
-else
-    absolute_path=$(realpath "$1")
-    file="-F \"file=@$absolute_path\""
+array=()
+for arg in "$@"; do
+  if [[ $arg == /* ]]; then
+      array+=("$arg")
+  else
+      absolute_path=$(realpath "$arg")
+      if [ -z "$absolute_path" ]; then
+         array+=("$arg")
+      else
+         array+=("$absolute_path")
+      fi
+  fi
+done
+size=${#array[@]}
+files=""
+dir=""
+for i in "${!array[@]}"; do
+  file=${array[$i]}
+  if [ -e "$file" ]; then
+    files+="-F \"file=@$file\" "
+  else
+     if(( (i+1) == size )); then
+       dir=$file
+     fi
+  fi
+done
+if [ -z "$dir" ]; then
+    dir=$(date "+%Y/%m/%d/%H/%M/%S")
 fi
-if [ $# -eq 2 ]; then
-    path=$2
-else
-    path=$(date "+%Y/%m/%d/%H/%M/%S")
-fi
-if [[ "$path" =~ ^/ ]]; then
-    while [[ "${path:0:1}" == "/" ]]; do
-        path="${path:1}"
+
+if [[ "$dir" =~ ^/ ]]; then
+    while [[ "${dir:0:1}" == "/" ]]; do
+        dir="${dir:1}"
     done
 fi
-cmd="curl -H \"Authorization: Basic YWRtaW46YWRtaW4=\" $file -F token=het002402 http://127.0.0.1:8000/$path"
-echo "cmd:$cmd"
+cmd="curl -H $files http://127.0.0.1:8000/$dir"
+echo "$cmd"
 eval $cmd

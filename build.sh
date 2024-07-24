@@ -1,6 +1,6 @@
 #!/bin/bash
 #修改为自己的应用名称
-appname=goserverfile
+appname=go-serverfile
 DisplayName=基于Golang文件管理器
 Description="做最好的HTTP文件服务器，人性化的UI体验，文件的上传支持，安卓和苹果安装包的二维码直接生成。"
 version=0.0.0
@@ -103,6 +103,61 @@ function buildArgs() {
   #echo "$ldflags"
 }
 
+
+
+function check_docker_macos() {
+  if ! docker info &>/dev/null; then
+    echo "Docker 未启动，正在启动 Docker..."
+    open --background -a Docker
+    echo "Docker 已启动"
+    sleep 10
+    docker version
+  else
+    echo "Docker 已经在运行"
+  fi
+}
+
+function check_docker_linux() {
+  if ! docker info &>/dev/null; then
+    echo "Docker 未启动，正在启动 Docker..."
+    systemctl start docker
+    echo "Docker 已启动"
+    sleep 20
+    docker version
+  else
+    echo "Docker 已经在运行"
+  fi
+}
+
+function startdocker() {
+  os_name=$(uname -s)
+  echo "操作系统:$os_name"
+  if [ "$os_name" = "Darwin" ]; then
+    check_docker_macos
+  elif [ "$os_name" = "Linux" ]; then
+    check_docker_linux
+  else
+    echo "未知操作系统"
+  fi
+}
+
+function build_images_to_harbor_z4() {
+  startdocker
+#  docker login --username=xxl6097 -p Het002402 uuxia.cn:8085
+#  docker build -t goserverfile .
+#  docker tag goserverfile uuxia.cn:8085/xxl6097/goserverfile:v0.0.1
+#  docker push uuxia.cn:8085/xxl6097/goserverfile:v0.0.1
+#  docker buildx build --platform linux/amd64,linux/arm64 -t uuxia.cn:8085/xxl6097/goserverfile:v0.0.2 --push .
+
+  docker login --username=xxl6097 -p Het002402 uuxia.cn:8085
+#  docker build -t ${appname} .
+#  docker tag ${appname} uuxia.cn:8085/xxl6097/${appname}:${version}
+#  docker push uuxia.cn:8085/xxl6097/${appname}:${version}
+  docker buildx build --build-arg ARG_LDFLAGS="$ldflags" --platform linux/amd64,linux/arm64 -t uuxia.cn:8085/xxl6097/${appname}:${version} --push .
+  docker buildx build --build-arg ARG_LDFLAGS="$ldflags" --platform linux/amd64,linux/arm64 -t uuxia.cn:8085/xxl6097/${appname}:latest --push .
+  echo "==>uuxia.cn:8085/xxl6097/${appname}:${version}"
+}
+
 function initArgs() {
   version=$(getversion)
   echo "version:${version}"
@@ -138,6 +193,7 @@ function m() {
   initArgs
   if (( inputData[0] == 8 )); then
      buildall
+     build_images_to_harbor_z4
   else
      (build_menu "${inputData[@]}")
   fi

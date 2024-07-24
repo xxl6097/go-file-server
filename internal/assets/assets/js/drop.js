@@ -37,6 +37,7 @@ function dragEnd(event) {
     console.log('drop dragEnd')
 }
 
+
 // 监听拖拽释放事件
 function drop(event) {
     event.stopPropagation();

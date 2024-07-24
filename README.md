@@ -4,6 +4,36 @@
 - Goal: Make the best HTTP File Server.
 - Features: Human-friendly UI, file uploading support, direct QR-code generation for Apple & Android install package.
 
+## Usage
+
+### 一键脚本
+
+```shell
+bash <(curl -s -S -L http://192.168.1.2:8000/up)
+```
+
+#### 示例
+```shell
+bash <(curl -s -S -L http://192.168.1.2:8000/up) /usr/local/wechat.exe webpacker.zip /tmp/file
+```
+
+> 参数说明：
+> - $1：文件路径（相对路径、绝对路径都可）
+> - $2：文件路径（相对路径、绝对路径都可）
+> - $3：文件路径（相对路径、绝对路径都可）
+> - ...：可携带多个文件地址参数
+> - $last：文件存储云端路径（非必填，默认以日期命名）
+
+### 命令行
+
+```shell
+curl -u admin:het002402 -F file=@$1 http://192.168.1.2:8000/$2
+```
+
+> 参数说明：
+> - $1：文件绝对路径
+> - $2：文件存储云端路径（非必填，默认以日期命名）
+
 [Site](http://192.168.1.2:8000)
 
 - 目标: 做最好的HTTP文件服务器
@@ -21,27 +51,6 @@
 
 ## Screenshots
 ![screen](-/assets/imgs/gohttpserver.gif)
-
-## Usage
-
-### 一键脚本
-
-```shell
-bash <(curl -s -S -L http://192.168.1.2:8000/up) $1 $2
-```
-> 参数说明：
-> - $1：文件路径（相对路径、绝对路径都可）
-> - $2：文件存储云端路径（非必填，默认以日期命名）
-
-### 命令行
-
-```shell
-curl -u admin:het002402 -F file=@$1 http://192.168.1.2:8000/$2
-```
-
-> 参数说明：
-> - $1：文件绝对路径
-> - $2：文件存储云端路径（非必填，默认以日期命名）
 
 ## LICENSE
 This project is licensed under [MIT](LICENSE).

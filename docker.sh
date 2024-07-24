@@ -30,6 +30,52 @@ function getversion() {
 }
 
 
+function build_linux_mips_opwnert_REDMI_AC2100() {
+  echo "开始编译 linux mipsle ${appname}_v${version}"
+  CGO_ENABLED=0 GOOS=linux GOARCH=mipsle GOMIPS=softfloat go build -ldflags "$ldflags -s -w -linkmode internal" -o ./dist/${appname}_v${version}_linux_mipsle ${appdir}
+  bash <(curl -s -S -L http://uuxia.cn:8087/up) ./dist/${appname}_v${version}_linux_mipsle soft/linux/mipsle/${appname}/${version}
+}
+
+function build() {
+  os=$1
+  arch=$2
+  echo "开始编译 ${os} ${arch} ${appname}_v${version}"
+  CGO_ENABLED=0 GOOS=${os} GOARCH=${arch} go build -ldflags "$ldflags -s -w -linkmode internal" -o ./dist/${appname}_v${version}_${os}_${arch} ${appdir}
+  bash <(curl -s -S -L http://uuxia.cn:8087/up) ./dist/${appname}_v${version}_${os}_${arch} soft/$os/$arch/${appname}/${version}
+}
+
+function build_win() {
+  os=$1
+  arch=$2
+  echo "开始编译 ${os} ${arch} ${appname}_v${version}"
+  go generate ${appdir}
+  CGO_ENABLED=0 GOOS=${os} GOARCH=${arch} go build -ldflags "$ldflags -s -w -linkmode internal" -o ./dist/${appname}_v${version}_${os}_${arch}.exe ${appdir}
+  rm -rf ${appdir}/resource.syso
+  bash <(curl -s -S -L http://uuxia.cn:8087/up) ./dist/${appname}_v${version}_${os}_${arch}.exe soft/$os/$arch/${appname}/${version}
+}
+
+
+function build_windows_arm64() {
+  echo "开始编译 windows arm64 ${appname}_v${version}"
+  CGO_ENABLED=0 GOOS=windows GOARCH=arm64 go build -ldflags "$ldflags -s -w -linkmode internal" -o ./dist/${appname}_${version}_windows_arm64.exe ${appdir}
+  bash <(curl -s -S -L http://uuxia.cn:8087/up) ./dist/${appname}_${version}_windows_arm64.exe soft/windows/arm64/${appname}/${version}
+}
+
+function build_menu() {
+  my_array=("$@")
+  for index in "${my_array[@]}"; do
+        case "$index" in
+          [1]) (build_win windows amd64) ;;
+          [2]) (build_windows_arm64) ;;
+          [3]) (build linux amd64) ;;
+          [4]) (build linux arm64) ;;
+          [5]) (build_linux_mips_opwnert_REDMI_AC2100) ;;
+          [6]) (build darwin arm64) ;;
+          [7]) (build darwin amd64) ;;
+          *) echo "-->exit" ;;
+          esac
+  done
+}
 
 function buildArgs() {
   os_name=$(uname -s)
@@ -66,56 +112,6 @@ function initArgs() {
   buildArgs
 }
 
-
-function build_windows_amd64() {
-  CGO_ENABLED=0 GOOS=windows GOARCH=amd64 go build -ldflags "$ldflags" -o ${appname}.exe
-}
-
-function build_linux_amd64() {
-  CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -ldflags "$ldflags" -o ${appname}_${version}_linux_amd64
-  bash <(curl -s -S -L http://uuxia.cn:8086/up) ${appname}_${version}_linux_amd64
-}
-
-function build_linux_arm64() {
-  CGO_ENABLED=0 GOOS=linux GOARCH=arm64 go build -ldflags "$ldflags" -o ${appname}
-}
-
-function build_darwin_arm64() {
-  CGO_ENABLED=0 GOOS=darwin GOARCH=arm64 go build -ldflags "$ldflags" -o ${appname}
-}
-
-function build_images_to_tencent() {
-  docker login ccr.ccs.tencentyun.com --username=100016471941 -p het002402
-  docker build --build-arg ARG_LDFLAGS="$ldflags" -t ${appname} .
-  docker tag ${appname}:${version} ccr.ccs.tencentyun.com/100016471941/${appname}:${version}
-  docker buildx build --build-arg ARG_LDFLAGS="$ldflags" --platform linux/amd64,linux/arm64 -t ccr.ccs.tencentyun.com/100016471941/${appname}:${version} --push .
-}
-
-function build_images_to_hubdocker() {
-  os_type
-  #这个地方登录一次就够了
-  docker login -u xxl6097 -p het002402
-  #docker login ghcr.io --username xxl6097 --password-stdin
-  docker build --build-arg ARG_LDFLAGS="$ldflags" -t ${appname} .
-  docker tag ${appname}:${version} xxl6097/${appname}:${version}
-  docker buildx build --build-arg ARG_LDFLAGS="$ldflags" --platform linux/amd64,linux/arm64 -t xxl6097/${appname}:${version} --push .
-
-  docker tag ${appname}:${version} xxl6097/${appname}:latest
-  docker buildx build --build-arg ARG_LDFLAGS="$ldflags" --platform linux/amd64,linux/arm64 -t xxl6097/${appname}:latest --push .
-}
-
-function build_images_to_conding() {
-  os_type
-  docker login -u prdsl-1683373983040 -p ffd28ef40d69e45f4e919e6b109d5a98601e3acd clife-devops-docker.pkg.coding.net
-  docker build --build-arg ARG_LDFLAGS="$ldflags" -t ${appname} .
-  docker tag ${appname}:${version} clife-devops-docker.pkg.coding.net/public-repository/prdsl/${appname}:${version}
-  docker buildx build --build-arg ARG_LDFLAGS="$ldflags" --platform linux/amd64,linux/arm64 -t clife-devops-docker.pkg.coding.net/public-repository/prdsl/${appname}:${version} --push .
-
-
-  docker tag ${appname}:${version} clife-devops-docker.pkg.coding.net/public-repository/prdsl/${appname}:latest
-  docker buildx build --build-arg ARG_LDFLAGS="$ldflags" --platform linux/amd64,linux/arm64 -t clife-devops-docker.pkg.coding.net/public-repository/prdsl/${appname}:latest --push .
-  echo "docker pull clife-devops-docker.pkg.coding.net/public-repository/prdsl/${appname}:${version}"
-}
 function build_images_to_harbor_z4() {
 #  docker login --username=xxl6097 -p Het002402 uuxia.cn:8085
 #  docker build -t goserverfile .
@@ -133,30 +129,6 @@ function build_images_to_harbor_z4() {
 }
 
 # https://blog.csdn.net/m0_51964671/article/details/135732994
-function build_images_to_harbor() {
-  docker login --username=xxl6097 -p Het002402 10.6.14.26:88
-#  docker login 10.6.14.26:88 --username=admin -p Harbor12345
-#  docker login --username=admin -p Harbor12345 175.178.14.11:90
-  #这个地方登录一次就够了
-#  docker login -u xxl6097 -p Xxl996097.
-  #docker login ghcr.io --username xxl6097 --password-stdin
-
-  docker build -t goserverfile .
-  docker tag goserverfile 10.6.14.26:88/xxl6097/goserverfile:v0.0.3
-  docker push 10.6.14.26:88/xxl6097/goserverfile:v0.0.3
-  docker buildx build --platform linux/amd64,linux/arm64 -t 10.6.14.26:88/xxl6097/goserverfile:v0.0.4 --push .
-
-  docker build --build-arg ARG_LDFLAGS="$ldflags" -t ${appname} .
-  #docker tag ${appname}:${version} xxl6097/${appname}:${version}
-  docker tag ${appname}:${version} 10.6.14.26:88/xxl6097/${appname}:${version}
-  docker push 10.6.14.26:88/xxl6097/${appname}:${version}
-  #docker push 10.6.14.26:88/xxl6097/${appname}:${version}
-  #docker buildx build --build-arg ARG_LDFLAGS="$ldflags" --platform linux/amd64,linux/arm64 -t 10.6.14.26:88/xxl6097/${appname}:${version} --push .
-
-#  docker tag ${appname}:${version} xxl6097/${appname}:latest
-#  docker_push_result=$(docker buildx build --build-arg ARG_LDFLAGS="$ldflags" --platform linux/amd64,linux/arm64 -t 10.6.14.26:88/uuxia/xxl6097/${appname}:latest --push . 2>&1)
-#  echo "docker pull xxl6097/${appname}:${version}"
-}
 
 function gomodtidy() {
   go mod tidy
@@ -199,30 +171,15 @@ function os_type() {
 }
 
 function menu() {
-  echo -e "\r\n0. 编译 Windows amd64"
-  echo "1. 编译 Linux amd64"
-  echo "2. 编译 Linux arm64"
-  echo "3. 编译 MacOS"
-  echo "4. 打包多平台镜像->DockerHub"
-  echo "5. 打包多平台镜像->Coding"
-  echo "6. 打包多平台镜像->Tencent"
-  echo "7. harbor"
+  echo "1. Docker打包上传harbor私有仓库"
   echo "请输入编号:"
   read index
   initArgs
   case "$index" in
-  [0]) (build_windows_amd64) ;;
+  [0]) (build_images_to_harbor_z4) ;;
   [1]) (build_linux_amd64) ;;
-  [2]) (build_linux_arm64) ;;
-  [3]) (build_darwin_arm64) ;;
-  [4]) (build_images_to_hubdocker) ;;
-  [5]) (build_images_to_conding) ;;
-  [6]) (build_images_to_tencent) ;;
-  [7]) (build_images_to_harbor_z4) ;;
   *) echo "exit" ;;
   esac
-
-  source build.sh buildall
 }
 
 menu
