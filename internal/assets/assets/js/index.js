@@ -440,11 +440,12 @@ var vm = new Vue({
     loadAll: function () {
       // TODO: move loadFileList here
     },
-    checkToken: function (sucess) {
+    checkToken: function (sucess,over) {
       var token = localStorage.getItem('token');
       if (!token) {
         token = window.prompt("please input token", "")
         if (!token) {
+          over()
           return
         }
       }
@@ -464,10 +465,12 @@ var vm = new Vue({
           console.log(jqXHR, textStatus, errorThrown)
           ErrorMessage(jqXHR.statusText)
           localStorage.removeItem('token')
+          over()
         }
       })
     },
     checkDirectory: function (callback) {
+      var that = this
       this.checkToken((token)=>{
         var directory = window.prompt("current path: " + location.pathname + "\nplease enter the directory", "")
         console.log('onShowDirClick',directory)
@@ -478,6 +481,7 @@ var vm = new Vue({
           //var encodePath = this.getEncodePath(directory)
           var apipath = "/showdir?putType=showdir";
           console.log('encodePath', apipath, directory)
+          that.showLoding()
           $.ajax({
             url: apipath,
             headers: {
@@ -491,12 +495,16 @@ var vm = new Vue({
               console.log(res)
               //loadFileList()
               callback(JSON.parse(res),directory)
+              that.hideLoding()
             },
             error: function (jqXHR, textStatus, errorThrown) {
               ErrorMessage(jqXHR.statusText)
+              that.hideLoding()
             }
           })
         }
+      },()=>{
+          that.hideLoding()
       });
     },
     onShowDirClick: function () {
@@ -511,6 +519,19 @@ var vm = new Vue({
         vm.auth = res.auth;
         vm.updateBreadcrumb('');
       })
+    },
+    onTest: function () {
+      this.showLoding()
+      var that = this;
+      setTimeout(function () {
+        that.hideLoding()
+      },5000)
+    },
+    showLoding: function () {
+      $('#loadingModal').modal('show');
+    },
+    hideLoding: function () {
+      $('#loadingModal').modal('hide');
     },
   }
 })
@@ -535,6 +556,8 @@ function loadFileOrDir(reqPath) {
 }
 
 function loadFileList(pathname) {
+  this.showLoding()
+  var that = this
   var pathname = pathname || location.pathname + location.search;
   var retObj = null
   if (getQueryString("raw") !== "false") { // not a file preview
@@ -551,9 +574,11 @@ function loadFileList(pathname) {
         vm.files = res.files;
         vm.auth = res.auth;
         vm.updateBreadcrumb(pathname);
+        that.hideLoding()
       },
       error: function (jqXHR, textStatus, errorThrown) {
         showErrorMessage(jqXHR)
+        that.hideLoding()
       },
     });
 

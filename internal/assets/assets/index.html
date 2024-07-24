@@ -152,6 +152,10 @@
               New Folder <i class="fa fa-folder"></i>
             </button>
 
+            <button class="btn btn-xs btn-default" @click="onTest">
+              Tester
+            </button>
+
             [[if .ShowDir ]]
             <button class="btn btn-xs btn-default" @click="onShowDirClick">
               Show Dir <i class="fa fa-arrow-circle-down"></i>
@@ -374,6 +378,15 @@
     </div>
     <!-- login modal  end-->
 
+    <!-- 网络加载状态 start -->
+    <div class="modal model-loading" id="loadingModal" tabindex="-1">
+      <div id="loading" class="base-loading">
+        <div class="loader"></div>
+      </div>
+    </div>
+    <!-- 网络加载状态 end -->
+
+
 
   </div>
   <div class="col-md-12">
@@ -424,6 +437,10 @@
   ga('create', '[[.GoogleTrackerID]]', 'auto');
   ga('send', 'pageview');
 </script> [[ end ]]
+
+<!--<div id="loading" class="base-loading">-->
+<!--  <div class="loader"></div>-->
+<!--</div>-->
 </body>
 
 </html>
