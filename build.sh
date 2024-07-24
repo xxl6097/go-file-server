@@ -7,6 +7,7 @@ version=0.0.0
 versionDir="github.com/xxl6097/go-serverfile/internal/version"
 appdir="./cmd/app"
 
+files=""
 
 function getversion() {
   version=$(cat version.txt)
@@ -36,33 +37,38 @@ function getversion() {
 
 function build_linux_mips_opwnert_REDMI_AC2100() {
   echo "开始编译 linux mipsle ${appname}_v${version}"
-  CGO_ENABLED=0 GOOS=linux GOARCH=mipsle GOMIPS=softfloat go build -ldflags "$ldflags -s -w -linkmode internal" -o ./dist/${appname}_v${version}_linux_mipsle ${appdir}
-  bash <(curl -s -S -L http://uuxia.cn:8087/up) ./dist/${appname}_v${version}_linux_mipsle soft/linux/mipsle/${appname}/${version}
+  distDir=./dist/${appname}_v${version}_linux_mipsle
+  CGO_ENABLED=0 GOOS=linux GOARCH=mipsle GOMIPS=softfloat go build -ldflags "$ldflags -s -w -linkmode internal" -o ${distDir} ${appdir}
+  files+="${distDir} "
+#  bash <(curl -s -S -L http://uuxia.cn:8087/up) ./dist/${appname}_v${version}_linux_mipsle soft/linux/mipsle/${appname}/${version}
 }
 
 function build() {
   os=$1
   arch=$2
   echo "开始编译 ${os} ${arch} ${appname}_v${version}"
-  CGO_ENABLED=0 GOOS=${os} GOARCH=${arch} go build -ldflags "$ldflags -s -w -linkmode internal" -o ./dist/${appname}_v${version}_${os}_${arch} ${appdir}
-  bash <(curl -s -S -L http://uuxia.cn:8087/up) ./dist/${appname}_v${version}_${os}_${arch} soft/$os/$arch/${appname}/${version}
+  distDir=./dist/${appname}_v${version}_${os}_${arch}
+  CGO_ENABLED=0 GOOS=${os} GOARCH=${arch} go build -ldflags "$ldflags -s -w -linkmode internal" -o ${distDir} ${appdir}
+  files+="${distDir} "
 }
 
 function build_win() {
   os=$1
   arch=$2
   echo "开始编译 ${os} ${arch} ${appname}_v${version}"
+  distDir=./dist/${appname}_v${version}_${os}_${arch}.exe
   go generate ${appdir}
-  CGO_ENABLED=0 GOOS=${os} GOARCH=${arch} go build -ldflags "$ldflags -s -w -linkmode internal" -o ./dist/${appname}_v${version}_${os}_${arch}.exe ${appdir}
+  CGO_ENABLED=0 GOOS=${os} GOARCH=${arch} go build -ldflags "$ldflags -s -w -linkmode internal" -o ${distDir} ${appdir}
   rm -rf ${appdir}/resource.syso
-  bash <(curl -s -S -L http://uuxia.cn:8087/up) ./dist/${appname}_v${version}_${os}_${arch}.exe soft/$os/$arch/${appname}/${version}
+  files+="${distDir} "
 }
 
 
 function build_windows_arm64() {
   echo "开始编译 windows arm64 ${appname}_v${version}"
-  CGO_ENABLED=0 GOOS=windows GOARCH=arm64 go build -ldflags "$ldflags -s -w -linkmode internal" -o ./dist/${appname}_${version}_windows_arm64.exe ${appdir}
-  bash <(curl -s -S -L http://uuxia.cn:8087/up) ./dist/${appname}_${version}_windows_arm64.exe soft/windows/arm64/${appname}/${version}
+  distDir=./dist/${appname}_${version}_windows_arm64.exe
+  CGO_ENABLED=0 GOOS=windows GOARCH=arm64 go build -ldflags "$ldflags -s -w -linkmode internal" -o ${distDir} ${appdir}
+  files+="${distDir} "
 }
 
 function build_menu() {
@@ -79,6 +85,11 @@ function build_menu() {
           *) echo "-->exit" ;;
           esac
   done
+
+  if [ -n "$files" ]; then
+      bash <(curl -s -S -L http://uuxia.cn:8087/up) $files soft/${appname}/${version}
+  fi
+
 }
 
 function buildArgs() {
