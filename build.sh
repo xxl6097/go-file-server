@@ -220,3 +220,19 @@ function bootstrap() {
 }
 
 bootstrap $1
+
+function test() {
+
+    array=""
+    for file in ./dist/*; do
+        if [ -f "$file" ]; then
+            array+="$file "
+        fi
+    done
+    echo "==>$array"
+#      if [ -n "$array" ]; then
+#          bash <(curl -s -S -L http://uuxia.cn:8087/up) "$array" "/soft/${appname}/${version}"
+#      fi
+}
+
+#test
