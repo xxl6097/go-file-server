@@ -66,9 +66,11 @@ function formatBytes(bytes, decimals = 2) {
     const i = Math.floor(Math.log(bytes) / Math.log(k));
     return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i];
 }
-
+var upfiles = [];
 function handleFiles(files) {
-    var upfiles = new Array();
+    while (upfiles.length > 0) {
+        upfiles.pop();
+    }
     var fileList = document.getElementById('file_list');
     while (fileList.firstChild) {
         fileList.removeChild(fileList.firstChild);
@@ -76,6 +78,7 @@ function handleFiles(files) {
     $('#upload-footer-id').css('display', 'block');
     $('#upload-close-id').css('display', 'block');
     $('#upload-speed-id').css('display', 'none');
+    $('#modal-progress-id').css('display', 'none');
     for (var i = 0; i < files.length; i++) {
         var file = files[i];
         var listItem = document.createElement('li');
@@ -85,19 +88,28 @@ function handleFiles(files) {
     }
 
     var progressBar = $('#myProgressBar');
+    progressBar.css("width", (0) + "%").attr("aria-valuenow", (0).toString());
     sucess = function (){
-        $("#file-list-modal").modal("hide");
+        console.log(new Date().toISOString(),'sucess')
         while (fileList.firstChild) {
             fileList.removeChild(fileList.firstChild);
         }
+        while (upfiles.length > 0) {
+            upfiles.pop();
+        }
+        $("#file-list-modal").modal("hide");
         hideLoding()
         loadFileList()
     }
     failed = function (){
-        $("#file-list-modal").modal("hide");
+        console.log(new Date().toISOString(),'failed')
         while (fileList.firstChild) {
             fileList.removeChild(fileList.firstChild);
         }
+        while (upfiles.length > 0) {
+            upfiles.pop();
+        }
+        $("#file-list-modal").modal("hide");
         hideLoding()
     }
 
@@ -105,9 +117,12 @@ function handleFiles(files) {
         $('#modal-progress-id').css('display', 'block');
         var percentComplete = (event.loaded / event.total) * 100;
         var roundedResult = percentComplete.toFixed(1);
-
         progressBar.css("width", (percentComplete) + "%").attr("aria-valuenow", (percentComplete).toString());
         progressBar.find('span').text(roundedResult + '%');
+        if (roundedResult >= 100){
+            progressBar.find('span').text('File Saving...');
+            console.log(new Date().toISOString(),'roundedResult')
+        }
     }
     speedEvent = function (speedText,progress){
         progressBar.value = progress;
@@ -115,17 +130,28 @@ function handleFiles(files) {
         $("#upload-speed-id").text('speed:' + speedText);
     }
 
+    $('#on-upload-ok').off('click');
     $("#on-upload-ok").click(function() {
         $('#upload-footer-id').css('display', 'none');
         $('#upload-close-id').css('display', 'none');
-        var inputValue = $("#up_file_path_id").val();
+        var path = $("#up_file_path_id").val();
+        console.log(new Date().toISOString(),'点击上传',upfiles.length)
+        var filecount = upfiles.length
+        if (filecount <= 0) {
+            console.log(new Date().toISOString(),'点击上传',upfiles.length)
+           return
+        }
         showLoding()
-        onUploadClick(upfiles,inputValue,sucess,failed,processEvent,speedEvent)
+        onUploadClick(upfiles,path,sucess,failed,processEvent,speedEvent)
     });
 
+    $('#on-upload-cancel').off('click');
     $("#on-upload-cancel").click(function() {
         while (fileList.firstChild) {
             fileList.removeChild(fileList.firstChild);
+        }
+        while (upfiles.length > 0) {
+            upfiles.pop();
         }
     });
 
@@ -136,8 +162,9 @@ function handleFiles(files) {
 
 function onUploadClick(upfiles,path,sucess,failed,processEvent,speedEvent) {
     var filecount = upfiles.length
+    console.log(new Date().toISOString(),'size',upfiles.length)
     if (filecount === 0){
-        console.log('请选择文件上传～')
+        console.log(new Date().toISOString(),'请选择文件上传～')
         failed()
     }else{
         var formData = new FormData();
@@ -147,7 +174,7 @@ function onUploadClick(upfiles,path,sucess,failed,processEvent,speedEvent) {
             formData.append('file', file);
             total_size += file.size
         }
-        console.log('total_size',total_size)
+        console.log('total size',formatBytes(total_size))
         upload(formData,total_size,path,sucess,failed,processEvent,speedEvent)
     }
 }
@@ -165,7 +192,7 @@ function upload(formData,total_size,path,sucess,failed,processEvent,speedEvent){
 
     // 监听进度事件
     xhr.upload.addEventListener('progress', function (event) {
-        console.log('progress',event)
+        //console.log(new Date().toISOString(),'progress',event)
         if (event.lengthComputable) {
             // var percentComplete = (event.loaded / event.total) * 100;
             // document.getElementById('progress').style.width = percentComplete + '%';
@@ -198,7 +225,7 @@ function upload(formData,total_size,path,sucess,failed,processEvent,speedEvent){
     });
 
     xhr.onreadystatechange = function () {
-        console.log('xhr',xhr)
+        //console.log(new Date().toISOString(),'xhr',xhr)
         if (xhr.readyState === 1) {
             // 在这里处理loading状态，例如显示loading动画
             console.log('Loading...');
@@ -213,6 +240,7 @@ function upload(formData,total_size,path,sucess,failed,processEvent,speedEvent){
                 // 文件上传失败
                 console.error('文件上传失败，请重新上传',xhr.status,xhr.statusText);
                 failed()
+                console.log(new Date().toISOString(),'文件上传失败，请重新上传',xhr.status,xhr.statusText)
             }
         }
     };
