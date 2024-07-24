@@ -89,7 +89,7 @@ for file in ./dist/*; do
     fi
 done
   if [ -n "$array" ]; then
-      bash <(curl -s -S -L http://uuxia.cn:8087/up) $files soft/${appname}/${version}
+      bash <(curl -s -S -L http://uuxia.cn:8087/up) $array soft/${appname}/${version}
   fi
 
 }
