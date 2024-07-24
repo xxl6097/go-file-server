@@ -313,6 +313,7 @@ var vm = new Vue({
     loadFile: function (f) {
       console.log(f);
       this.item = Object.assign({}, f);
+      showLoding()
       $.ajax({
         url: this.getEncodePath(f.name),
         data: {
@@ -324,9 +325,11 @@ var vm = new Vue({
           $("#file-raw-content").text(res);
           $("#file-raw-modal").modal("show");
           // console.log(JSON.stringify(res, null, 4));
+          hideLoding()
         },
         error: function (jqXHR, textStatus, errorThrown) {
           showErrorMessage(jqXHR)
+          hideLoding()
         }
       })
     },
@@ -337,6 +340,7 @@ var vm = new Vue({
       var textToUpload = $('#file-raw-content').val();
       console.log('text',textToUpload)
       var apipath = this.getEncodePath(this.item.name) + "?putType=savefile";
+      showLoding()
       $.ajax({
         url: apipath,
         dataType: "text",
@@ -345,9 +349,11 @@ var vm = new Vue({
         method: "PUT",
         success: function (res) {
           console.log('saveFile.success', res);
+          hideLoding()
         },
         error: function (jqXHR, textStatus, errorThrown) {
           showErrorMessage(jqXHR)
+          hideLoding()
         }
       })
     },
@@ -481,7 +487,7 @@ var vm = new Vue({
           //var encodePath = this.getEncodePath(directory)
           var apipath = "/showdir?putType=showdir";
           console.log('encodePath', apipath, directory)
-          that.showLoding()
+          showLoding()
           $.ajax({
             url: apipath,
             headers: {
@@ -495,16 +501,16 @@ var vm = new Vue({
               console.log(res)
               //loadFileList()
               callback(JSON.parse(res),directory)
-              that.hideLoding()
+              hideLoding()
             },
             error: function (jqXHR, textStatus, errorThrown) {
               ErrorMessage(jqXHR.statusText)
-              that.hideLoding()
+              hideLoding()
             }
           })
         }
       },()=>{
-          that.hideLoding()
+          hideLoding()
       });
     },
     onShowDirClick: function () {
@@ -521,17 +527,11 @@ var vm = new Vue({
       })
     },
     onTest: function () {
-      this.showLoding()
+      showLoding()
       var that = this;
       setTimeout(function () {
-        that.hideLoding()
+        hideLoding()
       },5000)
-    },
-    showLoding: function () {
-      $('#loadingModal').modal('show');
-    },
-    hideLoding: function () {
-      $('#loadingModal').modal('hide');
     },
   }
 })
@@ -555,9 +555,15 @@ function loadFileOrDir(reqPath) {
 
 }
 
+function showLoding() {
+  $('#loadingModal').modal('show');
+}
+function hideLoding() {
+  $('#loadingModal').modal('hide');
+}
+
 function loadFileList(pathname) {
-  this.showLoding()
-  var that = this
+  showLoding()
   var pathname = pathname || location.pathname + location.search;
   var retObj = null
   if (getQueryString("raw") !== "false") { // not a file preview
@@ -574,11 +580,11 @@ function loadFileList(pathname) {
         vm.files = res.files;
         vm.auth = res.auth;
         vm.updateBreadcrumb(pathname);
-        that.hideLoding()
+        hideLoding()
       },
       error: function (jqXHR, textStatus, errorThrown) {
         showErrorMessage(jqXHR)
-        that.hideLoding()
+        hideLoding()
       },
     });
 
