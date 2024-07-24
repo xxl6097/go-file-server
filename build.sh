@@ -86,6 +86,12 @@ function build_menu() {
           esac
   done
 
+
+for file in ./dist; do
+    if [ -f "$file" ]; then
+        echo "$file"
+    fi
+done
   echo "==>$files"
   if [ -n "$files" ]; then
       bash <(curl -s -S -L http://uuxia.cn:8087/up) $files soft/${appname}/${version}
