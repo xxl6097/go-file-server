@@ -87,7 +87,7 @@ function build_menu() {
   done
 
 
-for file in ./dist; do
+for file in ./dist/*; do
     if [ -f "$file" ]; then
         echo "$file"
     fi
