@@ -282,7 +282,11 @@ func (f *FileServer) hUpload(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		//filepath := dstPath[len(f.Root):]
-		fileurl := fmt.Sprintf("http://%s/%s", r.Host, dstPath)
+		filePath := dstPath
+		if strings.HasPrefix(dstPath, f.Root) {
+			filePath = dstPath[len(f.Root):]
+		}
+		fileurl := fmt.Sprintf("http://%s/%s", r.Host, filePath)
 		filesurl = append(filesurl, fileurl)
 	}
 
