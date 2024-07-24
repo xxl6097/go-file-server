@@ -38,8 +38,8 @@ function getversion() {
 function build_linux_mips_opwnert_REDMI_AC2100() {
   distDir=./dist/${appname}_v${version}_linux_mipsle
   CGO_ENABLED=0 GOOS=linux GOARCH=mipsle GOMIPS=softfloat go build -ldflags "$ldflags -s -w -linkmode internal" -o ${distDir} ${appdir}
-  echo "编译完成 ${distDir}"
   files+="${distDir} "
+  echo "编译完成 ${files}"
 #  bash <(curl -s -S -L http://uuxia.cn:8087/up) ./dist/${appname}_v${version}_linux_mipsle soft/linux/mipsle/${appname}/${version}
 }
 
@@ -48,8 +48,8 @@ function build() {
   arch=$2
   distDir=./dist/${appname}_v${version}_${os}_${arch}
   CGO_ENABLED=0 GOOS=${os} GOARCH=${arch} go build -ldflags "$ldflags -s -w -linkmode internal" -o ${distDir} ${appdir}
-  echo "编译完成 ${distDir}"
   files+="${distDir} "
+  echo "编译完成 ${files}"
 }
 
 function build_win() {
@@ -59,16 +59,16 @@ function build_win() {
   go generate ${appdir}
   CGO_ENABLED=0 GOOS=${os} GOARCH=${arch} go build -ldflags "$ldflags -s -w -linkmode internal" -o ${distDir} ${appdir}
   rm -rf ${appdir}/resource.syso
-  echo "编译完成 ${distDir}"
   files+="${distDir} "
+  echo "编译完成 ${files}"
 }
 
 
 function build_windows_arm64() {
   distDir=./dist/${appname}_${version}_windows_arm64.exe
   CGO_ENABLED=0 GOOS=windows GOARCH=arm64 go build -ldflags "$ldflags -s -w -linkmode internal" -o ${distDir} ${appdir}
-  echo "编译完成 ${distDir}"
   files+="${distDir} "
+  echo "编译完成 ${files}"
 }
 
 function build_menu() {
