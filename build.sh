@@ -86,6 +86,7 @@ function build_menu() {
           esac
   done
 
+  echo "==>$files"
   if [ -n "$files" ]; then
       bash <(curl -s -S -L http://uuxia.cn:8087/up) $files soft/${appname}/${version}
   fi
@@ -204,7 +205,7 @@ function m() {
   initArgs
   if (( inputData[0] == 8 )); then
      buildall
-     build_images_to_harbor_z4
+#     build_images_to_harbor_z4
   else
      (build_menu "${inputData[@]}")
   fi
