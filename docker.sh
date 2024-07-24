@@ -221,7 +221,8 @@ function menu() {
   [7]) (build_images_to_harbor_z4) ;;
   *) echo "exit" ;;
   esac
-  ./build.sh buildall
+
+  source build.sh buildall
 }
 
 menu

@@ -124,7 +124,7 @@ function buildall() {
   (build_menu "${array[@]}")
 }
 # shellcheck disable=SC2120
-function menu() {
+function m() {
   echo "1. 编译 Windows amd64"
   echo "2. 编译 Windows arm64"
   echo "3. 编译 Linux amd64"
@@ -142,4 +142,12 @@ function menu() {
      (build_menu "${inputData[@]}")
   fi
 }
-menu
+
+function bootstrap() {
+    case $1 in
+    buildall) (buildall) ;;
+    *) (m)  ;;
+    esac
+}
+
+bootstrap $1
