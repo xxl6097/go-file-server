@@ -279,10 +279,18 @@ var vm = new Vue({
       let exists = index !== -1; // 返回 true
       //console.log('js',index,exists)
       if (exists){
-        return 'true';
+        return '';
       }else{
         return 'false';
       }
+    },
+    isZip: function (f) {
+      var ext = getExtention(f.name);
+      switch (ext) {
+        case "zip":
+          return true;
+      }
+      return false;
     },
     clickFileOrDir: function (f, e) {
       var reqPath = this.getEncodePath(f.name)
@@ -320,6 +328,28 @@ var vm = new Vue({
     loginModel: function (f) {
       $("#login-title").text("wahaha");
       $("#login-modal").modal("show");
+    },
+    unZip: function (f) {
+      this.onDialogOpen('Unzip File','Are you sure you want to unzip ' + f.name,()=>{
+        showLoding()
+        $.ajax({
+          url: this.getEncodePath(f.name),
+          data: {
+            unzip: "true",
+          },
+          method: "GET",
+          success: function (res) {
+            showToast(f.name + ' Unzip Sucess')
+            hideLoding()
+          },
+          error: function (jqXHR, textStatus, errorThrown) {
+            showErrorMessage(jqXHR)
+            hideLoding()
+            showToast(f.name + ' Unzip Failed')
+          }
+        })
+      })
+
     },
     loadFile: function (f) {
       console.log(f);
@@ -361,10 +391,12 @@ var vm = new Vue({
         success: function (res) {
           console.log('saveFile.success', res);
           hideLoding()
+          showToast(this.item.name + ' Save Sucess')
         },
         error: function (jqXHR, textStatus, errorThrown) {
           showErrorMessage(jqXHR)
           hideLoding()
+          showToast(this.item.name + ' Save Failed')
         }
       })
     },
@@ -404,10 +436,12 @@ var vm = new Vue({
             success: function (res) {
               loadFileList()
               hideLoding()
+              showToast(f.name + ' Upload Sucess')
             },
             error: function (jqXHR, textStatus, errorThrown) {
               showErrorMessage(jqXHR)
               hideLoding()
+              showToast('Delete Failed')
             }
           });
         });
@@ -544,6 +578,7 @@ var vm = new Vue({
       })
     },
     onTest: function () {
+      showToast('wahaha')
       showLoding()
       var that = this;
       setTimeout(function () {

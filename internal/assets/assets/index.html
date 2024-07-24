@@ -154,9 +154,12 @@
               New Folder <i class="fa fa-folder"></i>
             </button>
 
+            [[if .Debug ]]
             <button class="btn btn-xs btn-default" @click="onTest">
               Tester
             </button>
+            [[end]]
+
 
             [[if .ShowDir ]]
             <button class="btn btn-xs btn-default" @click="onShowDirClick">
@@ -238,6 +241,11 @@
             <template v-if="isTextFile(f) == 'true'">
               <button class="btn btn-default btn-xs" v-on:click="loadFile(f)">
                 <span class="glyphicon glyphicon-edit"></span>
+              </button>
+            </template>
+            <template v-if="isZip(f)">
+              <button class="btn btn-default btn-xs" v-on:click="unZip(f)">
+                <i class="fa fa-file-zip-o"></i>
               </button>
             </template>
 
@@ -502,9 +510,7 @@
   ga('send', 'pageview');
 </script> [[ end ]]
 
-<!--<div id="loading" class="base-loading">-->
-<!--  <div class="loader"></div>-->
-<!--</div>-->
+<div id="toast" class="toast"></div>
 </body>
 
 </html>

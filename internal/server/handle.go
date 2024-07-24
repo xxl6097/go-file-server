@@ -427,6 +427,23 @@ func (f *FileServer) hIndex(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	if r.FormValue("unzip") == "true" {
+		log.Println(realPath)
+		dirpath, _ := filepath.Split(realPath)
+		err := zip.UnzipFile(realPath, dirpath)
+		log.Println(realPath, err)
+		//os.Remove(dstPath)
+		//message := "success"
+		//if err != nil {
+		//	message = err.Error()
+		//}
+		//json.NewEncoder(w).Encode(map[string]interface{}{
+		//	"success":     err == nil,
+		//	"description": message,
+		//})
+		return
+	}
+
 	log.Println("GET", path, realPath)
 	if r.FormValue("raw") == "false" || file2.IsDir(realPath) {
 		if r.Method == "HEAD" {

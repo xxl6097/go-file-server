@@ -30,6 +30,7 @@ func (this *FileServer) makeConfig() {
 	this.GoogleTrackerID = this.config.GoogleTrackerID
 	this.Upload = this.config.Upload
 	this.Delete = this.config.Delete
+	this.Debug = this.config.Debug
 	this.AuthType = this.config.Auth.Type
 	this.NoLogin = this.config.NoLogin
 	this.ShowDir = this.config.Showdir

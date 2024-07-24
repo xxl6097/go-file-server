@@ -119,6 +119,10 @@ function tagAndGitPush() {
     echo $version >version.txt
 }
 
+function buildall() {
+  array=(1 2 3 4 5 6 7)
+  (build_menu "${array[@]}")
+}
 # shellcheck disable=SC2120
 function menu() {
   echo "1. 编译 Windows amd64"
@@ -133,8 +137,7 @@ function menu() {
   read -r -a inputData "$@"
   initArgs
   if (( inputData[0] == 8 )); then
-     array=(1 2 3 4 5 6 7)
-     (build_menu "${array[@]}")
+     buildall
   else
      (build_menu "${inputData[@]}")
   fi

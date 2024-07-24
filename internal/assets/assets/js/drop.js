@@ -100,6 +100,7 @@ function handleFiles(files) {
         $("#file-list-modal").modal("hide");
         hideLoding()
         loadFileList()
+        showToast('Upload Sucess')
     }
     failed = function (){
         console.log(new Date().toISOString(),'failed')
@@ -111,6 +112,7 @@ function handleFiles(files) {
         }
         $("#file-list-modal").modal("hide");
         hideLoding()
+        showToast('Upload Failed')
     }
 
     processEvent = function (event){

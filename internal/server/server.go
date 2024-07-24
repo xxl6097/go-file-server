@@ -24,6 +24,7 @@ type FileServer struct {
 	Prefix           string
 	Upload           bool
 	Delete           bool
+	Debug            bool
 	Title            string
 	Theme            string
 	PlistProxy       string
