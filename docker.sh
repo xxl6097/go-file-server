@@ -176,8 +176,8 @@ function menu() {
   read index
   initArgs
   case "$index" in
-  [0]) (build_images_to_harbor_z4) ;;
-  [1]) (build_linux_amd64) ;;
+  [1]) (build_images_to_harbor_z4) ;;
+  [2]) (build_linux_amd64) ;;
   *) echo "exit" ;;
   esac
 }
