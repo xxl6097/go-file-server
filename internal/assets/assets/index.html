@@ -238,7 +238,7 @@
             <a class="btn btn-default btn-xs visible-xs" v-if="shouldHaveQrcode(f.name)" href="{{genInstallURL(f.name)}}">
               Install <i class="fa fa-cube"></i>
             </a>
-            <template v-if="isTextFile(f) == 'true'">
+            <template v-if="isTextFile(f)">
               <button class="btn btn-default btn-xs" v-on:click="loadFile(f)">
                 <span class="glyphicon glyphicon-edit"></span>
               </button>
@@ -315,7 +315,7 @@
             <form action="#" class="dropzone" id="upload-form"></form>
           </div>
           <div class="modal-footer">
-            <button type="button" class="btn btn-default" @click="removeAllUploads">RemoveAll</button>
+            <button type="button" class="btn btn-warning" @click="removeAllUploads">RemoveAll</button>
             <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
           </div>
         </div>
@@ -353,7 +353,7 @@
           </div>
 
           <div class="modal-footer">
-            <button type="button" class="btn btn-default" @click="saveFile">Save</button>
+            <button type="button" class="btn btn-info" @click="saveFile">Save</button>
             <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
           </div>
 
@@ -423,7 +423,7 @@
           </div>
 
           <div id="upload-footer-id" class="modal-footer">
-            <button id="on-upload-ok" type="button" class="btn btn-default">Upload</button>
+            <button id="on-upload-ok" type="button" class="btn btn-success">Upload</button>
             <button id="on-upload-cancel" type="button" class="btn btn-default" data-dismiss="modal">Close</button>
           </div>
 
@@ -449,7 +449,7 @@
           </div>
 
           <div class="modal-footer">
-            <button id="alert-id" type="button" class="btn btn-default">confirm</button>
+            <button id="alert-id" type="button" class="btn btn-danger">confirm</button>
             <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
           </div>
 

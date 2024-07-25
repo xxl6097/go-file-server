@@ -267,21 +267,21 @@ var vm = new Vue({
     isTextFile: function (f) {
       if (f.type == "dir") {
         if (f.name == '.git') {
-          return 'false';
+          return false;
         }
-        return 'false';
+        return false;
       }
       if (f.name == '.ext'){
-        return 'true';
+        return true;
       }
       var ext = getExtention(f.name);
       let index = this.exts.indexOf(ext); // 返回 2
       let exists = index !== -1; // 返回 true
       //console.log('js',index,exists)
       if (exists){
-        return '';
+        return true;
       }else{
-        return 'false';
+        return false;
       }
     },
     isZip: function (f) {
