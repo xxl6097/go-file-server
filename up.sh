@@ -12,28 +12,24 @@ for arg in "$@"; do
       fi
   fi
 done
-size=${#array[@]}
-files=""
-dir=""
+
+
 for i in "${!array[@]}"; do
   file=${array[$i]}
   if [ -e "$file" ]; then
-    files+="-F \"file=@$file\" "
+    if [ -d $file ]; then
+        directory_name=$(basename "$file")
+        echo "目录[$directory_name]：$file"
+        for f in $file/*
+        do
+          if [ -f "$f" ]; then
+              echo "dist file:$f"
+          fi
+        done
+    else
+        echo "文件:$file"
+    fi
   else
-     if(( (i+1) == size )); then
-       dir=$file
-     fi
+      echo "2-->$file"
   fi
 done
-if [ -z "$dir" ]; then
-    dir=$(date "+%Y/%m/%d/%H/%M/%S")
-fi
-
-if [[ "$dir" =~ ^/ ]]; then
-    while [[ "${dir:0:1}" == "/" ]]; do
-        dir="${dir:1}"
-    done
-fi
-cmd="curl -H $files http://127.0.0.1:8000/$dir"
-echo "$cmd"
-eval $cmd

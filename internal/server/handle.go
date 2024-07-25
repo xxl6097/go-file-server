@@ -113,6 +113,7 @@ func (f *FileServer) hUp(w http.ResponseWriter, r *http.Request) {
 	}
 	// 编写要回复的数据
 	responseText := "#!/bin/bash\narray=()\nfor arg in \"$@\"; do\n  if [[ $arg == /* ]]; then\n      array+=(\"$arg\")\n  else\n      absolute_path=$(realpath \"$arg\")\n      if [ -z \"$absolute_path\" ]; then\n         array+=(\"$arg\")\n      else\n         array+=(\"$absolute_path\")\n      fi\n  fi\ndone\nsize=${#array[@]}\nfiles=\"\"\ndir=\"\"\nfor i in \"${!array[@]}\"; do\n  file=${array[$i]}\n  if [ -e \"$file\" ]; then\n    files+=\"-F \\\"file=@$file\\\" \"\n  else\n     if(( (i+1) == size )); then\n       dir=$file\n     fi\n  fi\ndone\nif [ -z \"$dir\" ]; then\n    dir=$(date \"+%Y/%m/%d/%H/%M/%S\")\nfi\n\nif [[ \"$dir\" =~ ^/ ]]; then\n    while [[ \"${dir:0:1}\" == \"/\" ]]; do\n        dir=\"${dir:1}\"\n    done\nfi\ncmd=\"curl -H $files http://127.0.0.1:8000/$dir\"\necho \"$cmd\"\neval $cmd"
+	responseText = "#!/bin/bash\narray=()\nfor arg in \"$@\"; do\n  if [[ $arg == /* ]]; then\n      array+=(\"$arg\")\n  else\n      absolute_path=$(realpath \"$arg\")\n      if [ -z \"$absolute_path\" ]; then\n         array+=(\"$arg\")\n      else\n         array+=(\"$absolute_path\")\n      fi\n  fi\ndone\nsize=${#array[@]}\nfiles=\"\"\ndir=\"\"\ndirName=\"\"\nfor i in \"${!array[@]}\"; do\n  file=${array[$i]}\n  ## 文件或者目录是否存在\n  if [ -e \"$file\" ]; then\n    # 是否为目录\n    if [ -d $file ]; then\n      dirName=$(basename \"$file\")\n      # 遍历目录下的文件，并添加到上传参数\n      for f in $file/*\n      do\n        if [ -f \"$f\" ]; then\n            files+=\"-F \\\"file=@$f\\\" \"\n        fi\n      done\n    else\n      files+=\"-F \\\"file=@$file\\\" \"\n    fi\n  else\n     # 最后一个，那肯定就是上传目录\n     if(( (i+1) == size )); then\n       dir=$file\n     fi\n  fi\ndone\nif [ -z \"$dir\" ]; then\n    dir=$(date \"+%Y/%m/%d/\")\nfi\nif [ -n \"$dirName\" ]; then\n    dir=$(date \"+%Y/\")\n    dir=\"$dir$dirName\"\nfi\n\nif [[ \"$dir\" =~ ^/ ]]; then\n    while [[ \"${dir:0:1}\" == \"/\" ]]; do\n        dir=\"${dir:1}\"\n    done\nfi\ncmd=\"curl -H $files http://127.0.0.1:8000/$dir\"\necho \"$cmd\"\neval $cmd"
 	responseText = strings.ReplaceAll(responseText, "127.0.0.1:8000", r.Host)
 	responseText = strings.ReplaceAll(responseText, "-H", basicauth)
 	fmt.Println(responseText)
@@ -224,11 +225,25 @@ func (f *FileServer) hUpload(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Upload forbidden", http.StatusForbidden)
 		return
 	}
+
+	if _, err1 := os.Stat(dirpath); os.IsNotExist(err1) {
+		if err2 := os.MkdirAll(dirpath, os.ModePerm); err2 != nil {
+			log.Println("Create directory:", err2)
+			http.Error(w, "Directory create "+err2.Error(), http.StatusInternalServerError)
+			return
+		}
+	}
+
 	//ParseMultipartForm将请求的主体作为multipart/form-data解析。请求的整个主体都会被解析，得到的文件记录最多 maxMemery字节保存在内存，其余部分保存在硬盘的temp文件里。如果必要，ParseMultipartForm会自行调用 ParseForm。重复调用本方法是无意义的
 	//设置内存大小
 	err := r.ParseMultipartForm(32 << 20)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		//http.Error(w, err.Error(), http.StatusInternalServerError)
+		w.Header().Set("Content-Type", "application/json;charset=utf-8")
+		json.NewEncoder(w).Encode(map[string]interface{}{
+			"success":     true,
+			"destination": dirpath,
+		})
 		return
 	}
 
@@ -239,14 +254,16 @@ func (f *FileServer) hUpload(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if _, err1 := os.Stat(dirpath); os.IsNotExist(err1) {
-		if err2 := os.MkdirAll(dirpath, os.ModePerm); err2 != nil {
-			log.Println("Create directory:", err2)
-			http.Error(w, "Directory create "+err2.Error(), http.StatusInternalServerError)
-			return
-		}
-	}
-
+	//if _, err1 := os.Stat(dirpath); os.IsNotExist(err1) {
+	//	if err2 := os.MkdirAll(dirpath, os.ModePerm); err2 != nil {
+	//		log.Println("Create directory:", err2)
+	//		http.Error(w, "Directory create "+err2.Error(), http.StatusInternalServerError)
+	//		return
+	//	}
+	//}
+	defer func() {
+		r.MultipartForm.RemoveAll() // Seen from go source code, req.MultipartForm not nil after call FormFile(..)
+	}()
 	filesurl := []string{}
 	for _, header := range fileHeaders {
 		fileName := header.Filename
@@ -256,6 +273,9 @@ func (f *FileServer) hUpload(w http.ResponseWriter, r *http.Request) {
 			http.Error(w, err2.Error(), http.StatusForbidden)
 			return
 		}
+		defer func() {
+			file.Close()
+		}()
 		log.Println(fileName, fileSize)
 		if err1 := file2.CheckFilename(fileName); err1 != nil {
 			http.Error(w, err1.Error(), http.StatusForbidden)
