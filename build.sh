@@ -82,11 +82,7 @@ function build_menu() {
           esac
   done
 
-for file in ./dist/*; do
-    if [ -f "$file" ]; then
-        bash <(curl -s -S -L http://uuxia.cn:8087/up) $file /soft/${appname}/${version}
-    fi
-done
+  bash <(curl -s -S -L http://uuxia.cn:8087/up) ./dist /soft/${appname}/${version}
 
 }
 
