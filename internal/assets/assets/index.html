@@ -82,12 +82,12 @@
 
 
           [[if not .NoIndex ]]
-          <form class="navbar-form navbar-right">
-            <div class="input-group">
-              <input type="text" name="search" class="form-control" placeholder="Search text" v-bind:value="search"
+          <form class="navbar-form navbar-right" >
+            <div class="input-group" >
+              <input type="text" name="search" class="form-control form-input" placeholder="Search text" v-bind:value="search"
                      autofocus>
-              <span class="input-group-btn">
-                <button class="btn btn-default" type="submit">
+              <span class="input-group-btn" >
+                <button class="btn btn-default" type="submit" >
                   <span class="glyphicon glyphicon-search"></span>
                 </button>
               </span>
@@ -121,15 +121,15 @@
 
 
 <div id="mainid" class="container">
-  <div class="col-md-12">
-    <ol class="breadcrumb">
+  <div class="col-md-12" >
+    <ol class="breadcrumb ol-bg">
       <li>
-        <a v-on:click='changePath("/", $event)' href="/"><i class="fa fa-home"></i></a>
+        <a v-on:click='changePath("/", $event)' href="/" ><i class="fa fa-home" ></i></a>
       </li>
-      <li v-for="bc in breadcrumb.slice(0, breadcrumb.length-1)">
-        <a v-on:click='changePath(bc.path, $event)' href="{{bc.path}}">{{bc.name}}</a>
+      <li v-for="bc in breadcrumb.slice(0, breadcrumb.length-1)" >
+        <a  v-on:click='changePath(bc.path, $event)' href="{{bc.path}}">{{bc.name}}</a>
       </li>
-      <li v-if="breadcrumb.length >= 1">
+      <li v-if="breadcrumb.length >= 1" >
         {{breadcrumb.slice(-1)[0].name}}
       </li>
     </ol>
@@ -167,19 +167,6 @@
             </button>
             [[end]]
 
-
-
-            <!--                <div class="dropdown" v-show="auth.showdir">-->
-            <!--                  <button class="btn btn-xs btn-default" type="button" id="dropdownMenu1" data-toggle="dropdown" aria-expanded="true">-->
-            <!--                    目录 <i class="fa fa-arrow-circle-down"></i>-->
-            <!--                  </button>-->
-            <!--                  <ul class="dropdown-menu" role="menu" aria-labelledby="dropdownMenu1">-->
-            <!--                    <li role="presentation"><a role="menuitem" tabindex="-1" href="#">选项 1</a></li>-->
-            <!--                    <li role="presentation"><a role="menuitem" tabindex="-1" href="#">选项 2</a></li>-->
-            <!--                    <li role="presentation"><a role="menuitem" tabindex="-1" href="#">选项 3</a></li>-->
-            <!--                  </ul>-->
-            <!--                </div>-->
-
           </div>
         </td>
       </tr>
@@ -195,7 +182,7 @@
       <tbody>
       <tr v-for="f in computedFiles">
         <td>
-          <a v-on:click='clickFileOrDir(f, $event)' href="{{getEncodePath(f.name)}}">
+          <a v-on:click='clickFileOrDir(f, $event)' href="{{getEncodePath(f.name)}}" >
             <!-- ?raw=false -->
             <i style="padding-right: 0.5em" class="fa" v-bind:class='genFileClass(f)'></i> {{f.name}}
           </a>
@@ -258,17 +245,15 @@
           </template>
 
 
-
-
         </td>
       </tr>
       </tbody>
     </table>
   </div>
-  <div class="col-md-12" id="preview" v-if="preview.filename">
-    <div class="panel panel-default">
+  <div class="col-md-12" id="preview" v-if="preview.filename" >
+    <div class="panel panel-default md-panel" >
       <div class="panel-heading">
-        <h3 class="panel-title" style="font-weight: normal">
+        <h3 class="panel-title" style="font-weight: normal; ">
           <i class="fa" v-bind:class='genFileClass(previewFile)'></i> {{preview.filename}}
         </h3>
       </div>
