@@ -18,6 +18,9 @@ var ExtArrayContent string
 //go:embed assets/.ghs.yml
 var GhsContent string
 
+//go:embed assets/upload.sh
+var UploadShell string
+
 func AssetsContent(name string) string {
 	fd, err := Assets.Open(name)
 	if err != nil {

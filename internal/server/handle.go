@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"github.com/gorilla/mux"
 	"github.com/xxl6097/go-serverfile/internal/args"
+	"github.com/xxl6097/go-serverfile/internal/assets"
 	"github.com/xxl6097/go-serverfile/internal/model"
 	file2 "github.com/xxl6097/go-serverfile/pkg/file"
 	"github.com/xxl6097/go-serverfile/pkg/html"
@@ -112,8 +113,7 @@ func (f *FileServer) hUp(w http.ResponseWriter, r *http.Request) {
 		basicauth = fmt.Sprintf(" -H \\\"Authorization: Basic %s\\\"", basicauth)
 	}
 	// 编写要回复的数据
-	responseText := "#!/bin/bash\narray=()\nfor arg in \"$@\"; do\n  if [[ $arg == /* ]]; then\n      array+=(\"$arg\")\n  else\n      absolute_path=$(realpath \"$arg\")\n      if [ -z \"$absolute_path\" ]; then\n         array+=(\"$arg\")\n      else\n         array+=(\"$absolute_path\")\n      fi\n  fi\ndone\nsize=${#array[@]}\nfiles=\"\"\ndir=\"\"\nfor i in \"${!array[@]}\"; do\n  file=${array[$i]}\n  if [ -e \"$file\" ]; then\n    files+=\"-F \\\"file=@$file\\\" \"\n  else\n     if(( (i+1) == size )); then\n       dir=$file\n     fi\n  fi\ndone\nif [ -z \"$dir\" ]; then\n    dir=$(date \"+%Y/%m/%d/%H/%M/%S\")\nfi\n\nif [[ \"$dir\" =~ ^/ ]]; then\n    while [[ \"${dir:0:1}\" == \"/\" ]]; do\n        dir=\"${dir:1}\"\n    done\nfi\ncmd=\"curl -H $files http://127.0.0.1:8000/$dir\"\necho \"$cmd\"\neval $cmd"
-	responseText = "#!/bin/bash\narray=()\nfor arg in \"$@\"; do\n  if [[ $arg == /* ]]; then\n      array+=(\"$arg\")\n  else\n      absolute_path=$(realpath \"$arg\")\n      if [ -z \"$absolute_path\" ]; then\n         array+=(\"$arg\")\n      else\n         array+=(\"$absolute_path\")\n      fi\n  fi\ndone\nsize=${#array[@]}\nfiles=\"\"\ndir=\"\"\ndirName=\"\"\nfor i in \"${!array[@]}\"; do\n  file=${array[$i]}\n  ## 文件或者目录是否存在\n  if [ -e \"$file\" ]; then\n    # 是否为目录\n    if [ -d $file ]; then\n      dirName=$(basename \"$file\")\n      # 遍历目录下的文件，并添加到上传参数\n      for f in $file/*\n      do\n        if [ -f \"$f\" ]; then\n            files+=\"-F \\\"file=@$f\\\" \"\n        fi\n      done\n    else\n      files+=\"-F \\\"file=@$file\\\" \"\n    fi\n  else\n     # 最后一个，那肯定就是上传目录\n     if(( (i+1) == size )); then\n       dir=$file\n     fi\n  fi\ndone\nif [ -z \"$dir\" ]; then\n    dir=$(date \"+%Y/%m/%d/\")\nfi\nif [ -n \"$dirName\" ]; then\n    dir=$(date \"+%Y/\")\n    dir=\"$dir$dirName\"\nfi\n\nif [[ \"$dir\" =~ ^/ ]]; then\n    while [[ \"${dir:0:1}\" == \"/\" ]]; do\n        dir=\"${dir:1}\"\n    done\nfi\ncmd=\"curl -H $files http://127.0.0.1:8000/$dir\"\necho \"$cmd\"\neval $cmd"
+	responseText := assets.UploadShell
 	responseText = strings.ReplaceAll(responseText, "127.0.0.1:8000", r.Host)
 	responseText = strings.ReplaceAll(responseText, "-H", basicauth)
 	fmt.Println(responseText)
