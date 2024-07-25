@@ -15,7 +15,7 @@ import (
 )
 
 func (f *FileServer) hZip(w http.ResponseWriter, r *http.Request) {
-	zip.CompressToZip(w, f.Root, f.getRealPath(r))
+	zip.CompressToZip(w, f.getRealPath(r))
 }
 
 func (f *FileServer) hInfo(w http.ResponseWriter, r *http.Request) {

@@ -5,6 +5,7 @@ import (
 	"bytes"
 	"fmt"
 	dkignore "github.com/codeskyblue/dockerignore"
+	"github.com/xxl6097/go-serverfile/internal/args"
 	"golang.org/x/text/encoding/simplifiedchinese"
 	"io"
 	"io/ioutil"
@@ -134,7 +135,7 @@ func (z *Zip) Add(relpath, abspath string) error {
 	return err
 }
 
-func CompressToZip(w http.ResponseWriter, rootDir, defaultFileName string) {
+func CompressToZip(w http.ResponseWriter, rootDir string) {
 	rootDir = filepath.Clean(rootDir)
 	zipFileName := filepath.Base(rootDir) + ".zip"
 
@@ -146,7 +147,7 @@ func CompressToZip(w http.ResponseWriter, rootDir, defaultFileName string) {
 
 	filepath.Walk(rootDir, func(path string, info os.FileInfo, err error) error {
 		zipPath := path[len(rootDir):]
-		if info.Name() == defaultFileName { // ignore .ghs.yml for security YAMLCONF
+		if info.Name() == args.YAMLCONF { // ignore .ghs.yml for security YAMLCONF
 			return nil
 		}
 		return zw.Add(zipPath, path)

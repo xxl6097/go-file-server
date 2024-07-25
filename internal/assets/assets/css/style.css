@@ -226,6 +226,18 @@ div.dropzone {
     table tbody tr td {
         color: burlywood;
     }
+    .modal-bg {
+        background-color: #262424;
+    }
+    /*如果你想要为具有特定类的 <div> 元素的直接子元素设置背景颜色，可以使用子选择器（子组合器 >）。以下是一个示例：*/
+    .modal-body > * {
+        background-color: #110f0f;
+        color: white;
+    }
+
+    h4 span {
+        color: white;
+    }
 }
 
 /* Light Mode */
