@@ -91,7 +91,7 @@ function buildArgs() {
   #echo "os type $os_name"
   APP_NAME=${appname}
   BUILD_VERSION=$(if [ "$(git describe --tags --abbrev=0 2>/dev/null)" != "" ]; then git describe --tags --abbrev=0; else git log --pretty=format:'%h' -n 1; fi)
-  BUILD_TIME=$(TZ=Asia/Shanghai date +%FT%T%z)
+  BUILD_TIME=$(TZ=Asia/Shanghai date "+%Y-%m-%d %H:%M:%S")
   GIT_REVISION=$(git rev-parse --short HEAD)
   GIT_BRANCH=$(git name-rev --name-only HEAD)
   GO_VERSION=$(go version)
