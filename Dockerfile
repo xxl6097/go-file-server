@@ -28,14 +28,14 @@ COPY --from=builder /app/main .
 #COPY --from=builder /app/conf ./conf
 #RUN mkdir /logs
 
-#RUN echo "https://mirrors.aliyun.com/alpine/v3.8/main/" > /etc/apk/repositories \
-#    && echo "https://mirrors.aliyun.com/alpine/v3.8/community/" >> /etc/apk/repositories \
-#    && apk add --no-cache tzdata \
-#    && cp /usr/share/zoneinfo/Asia/Shanghai /etc/localtime  \
-#    && echo Asia/Shanghai > /etc/timezone \
-#    && apk del tzdata
-#RUN apk add tzdata
-#ENV TZ=Asia/Shanghai
+RUN echo "https://mirrors.aliyun.com/alpine/v3.8/main/" > /etc/apk/repositories \
+    && echo "https://mirrors.aliyun.com/alpine/v3.8/community/" >> /etc/apk/repositories \
+    && apk add --no-cache tzdata \
+    && cp /usr/share/zoneinfo/Asia/Shanghai /etc/localtime  \
+    && echo Asia/Shanghai > /etc/timezone \
+    && apk del tzdata
+RUN apk add tzdata
+ENV TZ=Asia/Shanghai
 
 
 # 设置时区为上海
