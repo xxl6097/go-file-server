@@ -205,3 +205,27 @@ func GetRootDirectory(path string) string {
 	}
 	return root
 }
+
+// SplitPath splits the given path into its components
+func SplitPath(path string) (string, string, []string) {
+	// Get the directory and base file name
+	dir := filepath.Dir(path)
+	base := filepath.Base(path)
+
+	// Split the path into its components
+	parts := strings.Split(dir, string(filepath.Separator))
+
+	return dir, base, parts
+}
+
+func GetPathFirst(path string) string {
+	_, _, parts := SplitPath(path)
+	if parts != nil && len(parts) > 0 {
+		part := parts[0]
+		if part == "." {
+			return ""
+		}
+		return part
+	}
+	return ""
+}

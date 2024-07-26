@@ -209,8 +209,11 @@ func (f *FileServer) hDelete(w http.ResponseWriter, req *http.Request) {
 		log.Printf("Not Exist realPath: %s ,path:%s\n", realPath, path)
 		return
 	}
-	// TODO: path safe check
-	err := os.RemoveAll(realPath)
+	newPath := file2.GetPathFirst(realPath)
+	if newPath != "" {
+		realPath = newPath
+	}
+	err := os.RemoveAll(realPath) //realPath
 	if err != nil {
 		pathErr, ok := err.(*os.PathError)
 		if ok {
