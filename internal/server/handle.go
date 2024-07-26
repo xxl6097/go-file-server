@@ -225,7 +225,7 @@ func (f *FileServer) hDelete(w http.ResponseWriter, req *http.Request) {
 		}
 		return
 	}
-	log.Printf("delete OK realPath: %s ,path:%s\n", realPath, path)
+	log.Printf("delete OK realPath: %s ,path:%s,newPath:%s\n", realPath, path, newPath)
 	w.Write([]byte("Success"))
 }
 func (f *FileServer) hUpload(w http.ResponseWriter, r *http.Request) {
