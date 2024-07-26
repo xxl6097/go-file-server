@@ -3,11 +3,14 @@ package html
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
 	"github.com/gorilla/mux"
 	"github.com/xxl6097/go-serverfile/pkg/file"
 	"io/ioutil"
 	"log"
+	"mime"
 	"net/http"
+	"net/textproto"
 	"net/url"
 	"path/filepath"
 	"strings"
@@ -85,4 +88,73 @@ func HFileSave(root, prefix string, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	w.WriteHeader(http.StatusOK)
+}
+
+//// GetFilenameFromContentDisposition 从请求中获取Content-Disposition头部中的filename字段
+//func GetFilenameFromContentDisposition(r *http.Request) (string, error) {
+//	// 获取Content-Disposition头信息
+//	contentDisposition := r.Header.Get("Content-Disposition")
+//	if contentDisposition == "" {
+//		return "", nil // 如果没有找到Content-Disposition头信息，则返回nil
+//	}
+//
+//	// 分割Content-Disposition头部的各个部分
+//	dispositionParts := strings.Split(contentDisposition, ";")
+//
+//	// 遍历各个部分，寻找filename
+//	for _, part := range dispositionParts {
+//		part = strings.TrimSpace(part) // 去除空白字符
+//		if strings.HasPrefix(part, "filename=") {
+//			// 提取filename的值
+//			quoteIndex := strings.IndexByte(part, '"')
+//			if quoteIndex == -1 {
+//				// 如果没有找到引号，尝试获取filename=之后的值
+//				return strings.TrimPrefix(part, "filename="), nil
+//			}
+//			// 如果找到了引号，获取引号之间的值
+//			return part[quoteIndex+1 : strings.LastIndex(part, '"')], nil
+//		}
+//	}
+//
+//	// 未找到filename字段
+//	return "", nil
+//}
+
+// textproto.MIMEHeader
+func GetFileNameFromMIMEHeader(header textproto.MIMEHeader) (string, error) {
+	contentDisposition := header.Get("Content-Disposition")
+	if contentDisposition == "" {
+		return "", fmt.Errorf("Content-Disposition header not found")
+	}
+
+	_, params, err := mime.ParseMediaType(contentDisposition)
+	if err != nil {
+		return "", fmt.Errorf("failed to parse Content-Disposition header: %v", err)
+	}
+
+	filename, ok := params["filename"]
+	if !ok {
+		return "", fmt.Errorf("filename not found in Content-Disposition header")
+	}
+
+	return filename, nil
+}
+
+func GetFileNameFromHeader(header http.Header) (string, error) {
+	contentDisposition := header.Get("Content-Disposition")
+	if contentDisposition == "" {
+		return "", fmt.Errorf("Content-Disposition header not found")
+	}
+
+	_, params, err := mime.ParseMediaType(contentDisposition)
+	if err != nil {
+		return "", fmt.Errorf("failed to parse Content-Disposition header: %v", err)
+	}
+
+	filename, ok := params["filename"]
+	if !ok {
+		return "", fmt.Errorf("filename not found in Content-Disposition header")
+	}
+
+	return filename, nil
 }

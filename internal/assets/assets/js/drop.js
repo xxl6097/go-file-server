@@ -1,3 +1,6 @@
+// var upfiles = [];
+let filesArray = [];
+const fileList = document.getElementById('file_list');
 // 监听拖拽进入事件
 function dragEnter(event) {
     event.stopPropagation();
@@ -51,53 +54,92 @@ function drop(event) {
     event.target.style.width = "100%"
     event.target.style.height = "100%"
 
-    var dt = event.dataTransfer;
-    var files = dt.files;
-    if (files.length > 0) {
-        // alert("文件已拖拽上传！");
-        handleFiles(files)
-    }
+    // defaultHandle(event)
+    directoryHandle(event)
 }
 
-function formatBytes(bytes, decimals = 2) {
-    if (bytes === 0) return '0 Bytes';
-    const k = 1024;
-    const dm = decimals < 0 ? 0 : decimals;
-    const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'];
-    const i = Math.floor(Math.log(bytes) / Math.log(k));
-    return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i];
+
+function traverseFileTree(item, path = '') {
+    if (item.isFile) {
+        item.file((file) => {
+            const fullPath = path ? `${path}/${file.name}` : file.name;
+            file.fullPath = fullPath; // 在文件对象中添加完整路径属性
+            filesArray.push(file); // 将文件对象添加到文件数组
+            const li = document.createElement('li');
+            //listItem.textContent = file.name + ' - ' + formatBytes(file.size);
+            li.textContent = fullPath + ' - ' + formatBytes(file.size);
+            fileList.appendChild(li);
+        });
+    } else if (item.isDirectory) {
+        const dirReader = item.createReader();
+        dirReader.readEntries((entries) => {
+            for (let i = 0; i < entries.length; i++) {
+                traverseFileTree(entries[i], path ? `${path}/${item.name}` : item.name);
+            }
+        });
+    }
 }
-var upfiles = [];
-function handleFiles(files) {
-    while (upfiles.length > 0) {
-        upfiles.pop();
+// 你可以在需要的时候访问 filesArray 数组，例如：
+function uploadFiles() {
+    showLoding()
+    var path = $("#up_file_path_id").val();
+    const formData = new FormData();
+    filesArray.forEach(file => {
+        formData.append('file', file, file.fullPath);
+    });
+    fetch(path, {
+        method: 'POST',
+        body: formData
+    })
+        .then(response => {
+            response.text()
+            $("#file-list-modal").modal("hide");
+            hideLoding()
+        })
+        .then(data => {
+            console.log('成功上传:', data);
+            showToast('成功上传')
+        })
+        .catch(error => {
+            console.error('上传失败:', error);
+            showToast('上传失败')
+        });
+}
+function directoryHandle(event) {
+    const items = event.dataTransfer.items;
+    filesArray = []; // 清空文件数组
+    fileList.innerHTML = ''; // 清空文件列表
+    for (let i = 0; i < items.length; i++) {
+        const item = items[i].webkitGetAsEntry();
+        if (item) {
+            traverseFileTree(item);
+        }
     }
-    var fileList = document.getElementById('file_list');
-    while (fileList.firstChild) {
-        fileList.removeChild(fileList.firstChild);
-    }
+
+
+    // $('#on-upload-ok').off('click');
+    // $("#on-upload-ok").click(function() {
+    //     uploadFiles()
+    // });
+    //
+    // $("#file-list-title").text('Files Upload');
+    // $("#file-list-modal").modal("show");
+    handleFiles(filesArray)
+}
+
+
+function handleFiles() {
     $('#upload-footer-id').css('display', 'block');
     $('#upload-close-id').css('display', 'block');
     $('#upload-speed-id').css('display', 'none');
     $('#modal-progress-id').css('display', 'none');
-    for (var i = 0; i < files.length; i++) {
-        var file = files[i];
-        var listItem = document.createElement('li');
-        listItem.textContent = file.name + ' - ' + formatBytes(file.size);
-        fileList.appendChild(listItem);
-        upfiles.push(file)
-    }
 
     var progressBar = $('#myProgressBar');
     progressBar.css("width", (0) + "%").attr("aria-valuenow", (0).toString());
     sucess = function (){
         console.log(new Date().toISOString(),'sucess')
-        while (fileList.firstChild) {
-            fileList.removeChild(fileList.firstChild);
-        }
-        while (upfiles.length > 0) {
-            upfiles.pop();
-        }
+        filesArray = []; // 清空文件数组
+        fileList.innerHTML = ''; // 清空文件列表
         $("#file-list-modal").modal("hide");
         hideLoding()
         loadFileList()
@@ -105,12 +147,8 @@ function handleFiles(files) {
     }
     failed = function (){
         console.log(new Date().toISOString(),'failed')
-        while (fileList.firstChild) {
-            fileList.removeChild(fileList.firstChild);
-        }
-        while (upfiles.length > 0) {
-            upfiles.pop();
-        }
+        filesArray = []; // 清空文件数组
+        fileList.innerHTML = ''; // 清空文件列表
         $("#file-list-modal").modal("hide");
         hideLoding()
         showToast('Upload Failed')
@@ -138,51 +176,39 @@ function handleFiles(files) {
         $('#upload-footer-id').css('display', 'none');
         $('#upload-close-id').css('display', 'none');
         var path = $("#up_file_path_id").val();
-        console.log(new Date().toISOString(),'点击上传',upfiles.length)
-        var filecount = upfiles.length
+        console.log(new Date().toISOString(),'点击上传',filesArray)
+        var filecount = filesArray.length
         if (filecount <= 0) {
-            console.log(new Date().toISOString(),'点击上传',upfiles.length)
+            console.log(new Date().toISOString(),'点击上传',filesArray.length)
            return
         }
-        showLoding()
-        onUploadClick(upfiles,path,sucess,failed,processEvent,speedEvent)
+        upload(sucess,failed,processEvent,speedEvent)
     });
 
     $('#on-upload-cancel').off('click');
     $("#on-upload-cancel").click(function() {
-        while (fileList.firstChild) {
-            fileList.removeChild(fileList.firstChild);
-        }
-        while (upfiles.length > 0) {
-            upfiles.pop();
-        }
+        filesArray = []; // 清空文件数组
+        fileList.innerHTML = ''; // 清空文件列表
     });
 
     //modal.style.display = 'block';
     $("#file-list-title").text('Files Upload');
+    $('#file-list-modal').modal({
+        backdrop: false
+    });
     $("#file-list-modal").modal("show");
 }
 
-function onUploadClick(upfiles,path,sucess,failed,processEvent,speedEvent) {
-    var filecount = upfiles.length
-    console.log(new Date().toISOString(),'size',upfiles.length)
-    if (filecount === 0){
-        console.log(new Date().toISOString(),'请选择文件上传～')
-        failed()
-    }else{
-        var formData = new FormData();
-        var total_size = 0;
-        for (var i = 0; i < filecount; i++) {
-            var file = upfiles.pop()
-            formData.append('file', file);
-            total_size += file.size
-        }
-        console.log('total size',formatBytes(total_size))
-        upload(formData,total_size,path,sucess,failed,processEvent,speedEvent)
-    }
-}
 
-function upload(formData,total_size,path,sucess,failed,processEvent,speedEvent){
+function upload(sucess,failed,processEvent,speedEvent){
+    var path = $("#up_file_path_id").val();
+    const formData = new FormData();
+    var total_size = 0;
+    filesArray.forEach(file => {
+        formData.append('file', file, file.fullPath);
+        total_size += file.size
+    });
+    console.log('total size',formatBytes(total_size))
     var xhr = new XMLHttpRequest();
     const formatSpeed = (bytesPerSecond) => {
         const kiloBytesPerSecond = bytesPerSecond / (1024*1024);

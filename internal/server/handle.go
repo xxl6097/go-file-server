@@ -289,6 +289,23 @@ func (f *FileServer) hUpload(w http.ResponseWriter, r *http.Request) {
 			http.Error(w, err1.Error(), http.StatusForbidden)
 			return
 		}
+
+		path, err3 := html.GetFileNameFromMIMEHeader(header.Header)
+		log.Println(path, err3)
+		var tmpPath string
+		if err3 == nil && path != "" {
+			dir, name := filepath.Split(path)
+			tmpPath = filepath.Join(dirpath, dir)
+			if name != "" {
+				fileName = path
+			}
+			if !file2.IsDirOrFileExist(tmpPath) {
+				if err21 := os.MkdirAll(tmpPath, os.ModePerm); err21 != nil {
+					log.Println("Create directory:", err21)
+					continue
+				}
+			}
+		}
 		dstPath := filepath.Join(dirpath, fileName)
 		//如果文件存在，则旧文件备份，以日期命名
 		file2.BackupFile(dstPath)

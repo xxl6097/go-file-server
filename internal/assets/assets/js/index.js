@@ -155,6 +155,7 @@ var vm = new Vue({
   },
   methods: {
     onDialogOpen: function (title,content,confirm){
+      $('#alert-id').off('click');
       $("#alert-id").click(function() {
         if(confirm){
           confirm()
@@ -442,7 +443,6 @@ var vm = new Vue({
               console.log('delete ok',url)
             },
             error: function (jqXHR, textStatus, errorThrown) {
-              showErrorMessage(jqXHR)
               hideLoding()
               showToast('Delete Failed')
               console.log('delete err',url,jqXHR)

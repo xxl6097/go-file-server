@@ -8,6 +8,21 @@ body {
 /*    color: burlywood;*/
 /*}*/
 
+
+#file_list {
+    width: 100%;
+    max-height: 400px;
+    margin: 2px auto;
+    border: 1px solid #ccc;
+    overflow-y: auto;
+}
+
+#file_list li {
+    list-style-type: none;
+    padding: 5px;
+    border-bottom: 1px solid #eee;
+}
+
 #footer {
     margin-bottom: 1em;
 }
