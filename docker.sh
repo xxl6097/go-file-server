@@ -124,7 +124,7 @@ function build_images_to_harbor_z4() {
 #  docker tag ${appname} uuxia.cn:8085/xxl6097/${appname}:${version}
 #  docker push uuxia.cn:8085/xxl6097/${appname}:${version}
   docker buildx build --build-arg ARG_LDFLAGS="$ldflags" --platform linux/amd64,linux/arm64 -t uuxia.cn:8085/xxl6097/${appname}:${version} --push .
-  docker buildx build --build-arg ARG_LDFLAGS="$ldflags" --platform linux/amd64,linux/arm64 -t uuxia.cn:8085/xxl6097/${appname}:latest --push .
+  #docker buildx build --build-arg ARG_LDFLAGS="$ldflags" --platform linux/amd64,linux/arm64 -t uuxia.cn:8085/xxl6097/${appname}:latest --push .
   echo "==>uuxia.cn:8085/xxl6097/${appname}:${version}"
 }
 
