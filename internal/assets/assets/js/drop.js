@@ -55,7 +55,7 @@ function drop(event) {
     event.target.style.height = "100%"
 
     // defaultHandle(event)
-    directoryHandle(event)
+    handleFiles(event)
 }
 
 
@@ -105,7 +105,8 @@ function uploadFiles() {
             showToast('上传失败')
         });
 }
-function directoryHandle(event) {
+
+function processTransferItems(event) {
     const items = event.dataTransfer.items;
     filesArray = []; // 清空文件数组
     fileList.innerHTML = ''; // 清空文件列表
@@ -115,20 +116,33 @@ function directoryHandle(event) {
             traverseFileTree(item);
         }
     }
-
-
-    // $('#on-upload-ok').off('click');
-    // $("#on-upload-ok").click(function() {
-    //     uploadFiles()
-    // });
-    //
-    // $("#file-list-title").text('Files Upload');
-    // $("#file-list-modal").modal("show");
-    handleFiles(filesArray)
+}
+function processTransfer(event) {
+    var dt = event.dataTransfer;
+    var files = dt.files;
+    files.forEach(file => {
+        const fullPath = path ? `${path}/${file.name}` : file.name;
+        file.fullPath = fullPath; // 在文件对象中添加完整路径属性
+        filesArray.push(file); // 将文件对象添加到文件数组
+        const li = document.createElement('li');
+        li.textContent = fullPath + ' - ' + formatBytes(file.size);
+        fileList.appendChild(li);
+    });
+}
+function handleFiles(event) {
+    var browser = detectBrowser();
+    console.log('Browser: ' + browser);
+    switch (browser) {
+        case 'Firefox':
+            processTransfer(event)
+            break;
+        default:
+            processTransferItems(event)
+    }
+    handleModalDialog(filesArray)
 }
 
-
-function handleFiles() {
+function handleModalDialog() {
     $('#upload-footer-id').css('display', 'block');
     $('#upload-close-id').css('display', 'block');
     $('#upload-speed-id').css('display', 'none');

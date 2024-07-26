@@ -189,3 +189,19 @@ func CheckFilename(name string) error {
 	}
 	return nil
 }
+
+// GetRootDirectory returns the root directory of the given path
+func GetRootDirectory(path string) string {
+	absPath, err := filepath.Abs(path)
+	if err != nil {
+		fmt.Println("Error getting absolute path:", err)
+		return ""
+	}
+
+	root := filepath.VolumeName(absPath)
+	if root == "" {
+		// For UNIX-like systems, return "/"
+		root = "/"
+	}
+	return root
+}

@@ -1,0 +1,21 @@
+﻿估算摘要
+预付成本,每月成本,Total 12 months cost,货币
+242.05,2063.04,24998.53,USD
+,,* 包括预付成本
+
+
+详细估算值
+组层次结构,区域,描述,服务,预付费,每月,First 12 months total,货币,状态,配置摘要
+My Estimate,非洲（开普敦）,k8s master    nginx,Amazon EC2 ,0,79.789,957.47,USD,,"租赁 (共享实例), 操作系统 (Linux), 工作负载 (Consistent, 实例数量: 1), 高级 EC2 实例 (t4g.xlarge), Pricing strategy ( 1 Year  None upfront), 启用监控 (已禁用), DT 入站: Not selected (0 TB/月), DT 出站: Not selected (0 TB/月), DT 区域内: (0 TB/月)"
+My Estimate,非洲（开普敦）,rocketmq 1m1s,Amazon EC2 ,0,423.856,5086.27,USD,,"租赁 (共享实例), 操作系统 (Linux), 工作负载 (Consistent, 实例数量: 2), 高级 EC2 实例 (t4g.2xlarge), Pricing strategy ( 1 Year  None upfront), 启用监控 (已禁用), EBS 存储量 (500 GB), DT 入站: Not selected (0 TB/月), DT 出站: Not selected (0 TB/月), DT 区域内: (0 TB/月)"
+My Estimate,非洲（开普敦）,k8s node  2 16核32GB,Amazon EC2 ,0,807.166,9685.99,USD,,"租赁 (共享实例), 操作系统 (Linux), 工作负载 (Consistent, 实例数量: 2), 高级 EC2 实例 (m6g.4xlarge), Pricing strategy ( 1 Year  None upfront), 启用监控 (已禁用), EBS 存储量 (500 GB), DT 入站: Not selected (0 TB/月), DT 出站: Not selected (0 TB/月), DT 区域内: (0 TB/月)"
+My Estimate,非洲（开普敦）,k8s node 1 8核32GB,Amazon EC2 ,0,189.328,2271.94,USD,,"租赁 (共享实例), 操作系统 (Linux), 工作负载 (Consistent, 实例数量: 1), 高级 EC2 实例 (t4g.2xlarge), Pricing strategy ( 1 Year  None upfront), 启用监控 (已禁用), EBS 存储量 (500 GB), DT 入站: Not selected (0 TB/月), DT 出站: Not selected (0 TB/月), DT 区域内: (0 TB/月)"
+My Estimate,非洲（开普敦）,,Amazon ElastiCache,0,62.78,753.36,USD,,"节点 (1), 实例类型 (cache.t3.medium), 缓存引擎 (Redis), 利用率（仅限按需） (100 %Utilized/Month), 缓存节点类型 (Standard), 定价模型 (OnDemand)"
+My Estimate,非洲（开普敦）,,Amazon RDS for MySQL,0,391.42999999999995,4697.16,USD,,"每个 RDS 实例的存储 (通用型 SSD (gp2)), 存储量 (30 GB), 数量 (1), 实例类型 (db.m5.xlarge), 利用率（仅限按需） (100 %Utilized/Month), 部署选项 (Single-AZ), 定价模型 (OnDemand)"
+My Estimate,非洲（开普敦）,k8s ,Amazon EKS,0,73,876.00,USD,,EKS 集群的数量 (1)
+My Estimate,非洲（开普敦）,global table,DynamoDB provisioned capacity,242.05,35.68,670.21,USD,,"表类 (标准), 平均项目大小(所有属性) (1 KB), 写入预留容量期限 (1 年), 读取预留容量期限 (1 年), 数据存储大小 (1 GB)"
+
+
+
+确认
+* AWS 定价计算器仅提供对 AWS 费用的估算，不含任何可能适用的税费。您的实际费用取决于多种因素，包括 AWS 服务的实际使用量。

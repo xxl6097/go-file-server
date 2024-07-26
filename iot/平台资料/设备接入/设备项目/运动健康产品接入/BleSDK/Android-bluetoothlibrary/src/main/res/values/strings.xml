@@ -1,0 +1,55 @@
+<resources>
+    <string name="app_name">BlueTooth Library</string>
+    <string name="ble_not_supported">BLE is not supported</string>
+    <string name="label_data">Data:</string>
+    <string name="label_device_address">Device address:</string>
+    <string name="label_state">State:</string>
+    <string name="no_data">No data</string>
+    <string name="connected">Connected</string>
+    <string name="disconnected">Disconnected</string>
+    <string name="title_devices">BLE Device Scan</string>
+    <string name="error_bluetooth_not_supported">Bluetooth not supported.</string>
+
+    <string name="unknown_device">Unknown device</string>
+    <string name="unknown_characteristic">Unknown characteristic</string>
+    <string name="unknown_service">Unknown service</string>
+
+    <!-- Menu items -->
+    <string name="menu_connect">Connect</string>
+    <string name="menu_disconnect">Disconnect</string>
+    <string name="menu_scan">Scan</string>
+    <string name="menu_stop">Stop</string>
+    <string name="more_about_us_tv3">bolight</string>
+    <string name="wf">胎心</string>
+    <string name="temp_blan">平衡温度</string>
+    <string name="temp">温度</string>
+    <string name="spo2">血氧值</string>
+    <string name="heart_rate">心率</string>
+    <string name="pi">pi</string>
+    <string name="wbp">袖带压</string>
+    <string name="sys">收缩压</string>
+    <string name="dia">舒张压</string>
+    <string name="hr">心率</string>
+    <string name="isguestmode">guestmode</string>
+    <string name="resvalue">resvalue</string>
+    <string name="ble_test_error1">Self-test failed</string>
+    <string name="ble_test_error2">Loose cuff</string>
+    <string name="ble_test_error3">Compression failed</string>
+    <string name="ble_test_error4">Air pressure error</string>
+    <string name="ble_test_error5">Fail to identify High/Low pressure (signal is weak)</string>
+    <string name="ble_test_error6">Pressure exceeds max. measuring range</string>
+    <string name="ble_test_error7">Movement during measurement</string>
+    <string name="ble_test_error8">Overpressure sensed</string>
+    <string name="ble_test_error9">Signal saturated</string>
+    <string name="ble_test_error10">Air system leak</string>
+    <string name="ble_test_error11">System failure</string>
+    <string name="ble_test_error12">Time out</string>
+    <string name="ble_test_error13">Cuff type error</string>
+    <string name="ble_test_error14">Unknown error</string>
+    <string name="ble_test_error15">error test result, SBP to be zero</string>
+    <string name="ble_test_error16">error test result, DBP to be zero</string>
+    <string name="ble_test_error17">error test result, RP to be zero</string>
+    <string name="ble_test_error18">Pulse is not normal</string>
+    <string name="ble_test_error19">Pulse over the limit</string>
+    <string name="ble_test_error20">Pulse lower limit</string>
+</resources>
