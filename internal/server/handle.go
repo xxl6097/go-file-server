@@ -201,13 +201,12 @@ func (f *FileServer) hDelete(w http.ResponseWriter, req *http.Request) {
 	auth := f.readAccessConf(realPath)
 	if !auth.CanDelete(req) {
 		http.Error(w, "Delete forbidden", http.StatusForbidden)
+		log.Printf("Can Not Delete by AccessConf realPath: %s ,path:%s\n", realPath, path)
 		return
 	}
-	log.Println("delete realPath", realPath)
-	log.Println("delete path", path)
 	if !file2.IsDirOrFileExist(realPath) {
 		http.Error(w, "Delete forbidden", http.StatusForbidden)
-		log.Println("Not Exist", realPath)
+		log.Printf("Not Exist realPath: %s ,path:%s\n", realPath, path)
 		return
 	}
 	// TODO: path safe check
@@ -215,12 +214,15 @@ func (f *FileServer) hDelete(w http.ResponseWriter, req *http.Request) {
 	if err != nil {
 		pathErr, ok := err.(*os.PathError)
 		if ok {
+			log.Printf("delete Err realPath: %s ,path:%s,err:%v,pathErr:%v\n", realPath, path, err, pathErr)
 			http.Error(w, pathErr.Op+" "+path+": "+pathErr.Err.Error(), 500)
 		} else {
+			log.Printf("delete Err realPath: %s ,path:%s,err:%v\n", realPath, path, err)
 			http.Error(w, err.Error(), 500)
 		}
 		return
 	}
+	log.Printf("delete OK realPath: %s ,path:%s\n", realPath, path)
 	w.Write([]byte("Success"))
 }
 func (f *FileServer) hUpload(w http.ResponseWriter, r *http.Request) {

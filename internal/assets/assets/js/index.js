@@ -431,7 +431,7 @@ var vm = new Vue({
         this.onDialogOpen('Delete Dialog','Are you sure you want to delete ' + f.name,()=>{
           showLoding()
           let url = this.getEncodePath(f.name)
-          console.log('delete',this.getEncodePath(f.name), f.name)
+          console.log('delete',url)
           $.ajax({
             url: url,
             method: 'DELETE',
@@ -439,11 +439,13 @@ var vm = new Vue({
               loadFileList()
               hideLoding()
               showToast(f.name + ' Delete Sucess')
+              console.log('delete ok',url)
             },
             error: function (jqXHR, textStatus, errorThrown) {
               showErrorMessage(jqXHR)
               hideLoding()
               showToast('Delete Failed')
+              console.log('delete err',url,jqXHR)
             }
           });
         });
