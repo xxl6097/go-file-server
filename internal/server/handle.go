@@ -209,10 +209,7 @@ func (f *FileServer) hDelete(w http.ResponseWriter, req *http.Request) {
 		log.Printf("Not Exist realPath: %s ,path:%s\n", realPath, path)
 		return
 	}
-	newPath := file2.GetPathFirst(realPath)
-	if newPath != "" {
-		realPath = newPath
-	}
+
 	err := os.RemoveAll(realPath) //realPath
 	if err != nil {
 		pathErr, ok := err.(*os.PathError)
@@ -225,7 +222,7 @@ func (f *FileServer) hDelete(w http.ResponseWriter, req *http.Request) {
 		}
 		return
 	}
-	log.Printf("delete OK realPath: %s ,path:%s,newPath:%s\n", realPath, path, newPath)
+	log.Printf("delete OK realPath: %s\n", realPath)
 	w.Write([]byte("Success"))
 }
 func (f *FileServer) hUpload(w http.ResponseWriter, r *http.Request) {

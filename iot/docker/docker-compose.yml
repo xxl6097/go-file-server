@@ -1,0 +1,13 @@
+version: '3'
+services:
+  trilium-cn:
+    image: nriver/trilium-cn
+    restart: always
+    ports:
+      - "8080:8080"
+    volumes:
+      # 把同文件夹下的 trilium-data 目录映射到容器内
+      - ./trilium-data:/root/trilium-data
+    environment:
+      - TRILIUM_DATA_DIR=/root/trilium-data
+      - TRILIUM_NO_UPLOAD_LIMIT=1
