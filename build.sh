@@ -193,11 +193,14 @@ function m() {
   echo "6. 编译 Darwin arm64"
   echo "7. 编译 Darwin amd64"
   echo "8. 编译全平台"
+  echo "9. 编译Docker镜像"
   echo "请输入编号:"
   read -r -a inputData "$@"
   initArgs
   if (( inputData[0] == 8 )); then
      buildall
+     build_images_to_harbor_z4
+  elif (( inputData[0] == 9 )); then
      build_images_to_harbor_z4
   else
      (build_menu "${inputData[@]}")
