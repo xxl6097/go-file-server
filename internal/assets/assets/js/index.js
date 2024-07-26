@@ -87,7 +87,7 @@ var vm = new Vue({
         success: function (res) {
           let lines = res.split('\n');
           let cleanedLines = lines.map(line => line.replace(/\r$/, ''));
-          console.log(cleanedLines);
+          //console.log(cleanedLines);
           that.exts = cleanedLines;
         },
         error: function (err) {
@@ -430,13 +430,15 @@ var vm = new Vue({
         // }
         this.onDialogOpen('Delete Dialog','Are you sure you want to delete ' + f.name,()=>{
           showLoding()
+          let url = this.getEncodePath(f.name)
+          console.log('delete',this.getEncodePath(f.name), f.name)
           $.ajax({
-            url: this.getEncodePath(f.name),
+            url: url,
             method: 'DELETE',
             success: function (res) {
               loadFileList()
               hideLoding()
-              showToast(f.name + ' Upload Sucess')
+              showToast(f.name + ' Delete Sucess')
             },
             error: function (jqXHR, textStatus, errorThrown) {
               showErrorMessage(jqXHR)

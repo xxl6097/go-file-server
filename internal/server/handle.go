@@ -203,7 +203,13 @@ func (f *FileServer) hDelete(w http.ResponseWriter, req *http.Request) {
 		http.Error(w, "Delete forbidden", http.StatusForbidden)
 		return
 	}
-
+	log.Println("delete realPath", realPath)
+	log.Println("delete path", path)
+	if !file2.IsDirOrFileExist(realPath) {
+		http.Error(w, "Delete forbidden", http.StatusForbidden)
+		log.Println("Not Exist", realPath)
+		return
+	}
 	// TODO: path safe check
 	err := os.RemoveAll(realPath)
 	if err != nil {
