@@ -1,8 +1,8 @@
 package access
 
 import (
-	"github.com/xxl6097/go-serverfile/internal/auth/openid"
-	"github.com/xxl6097/go-serverfile/internal/model"
+	"github.com/xxl6097/go-file-server/internal/auth/openid"
+	"github.com/xxl6097/go-file-server/internal/model"
 	"net/http"
 	"regexp"
 )

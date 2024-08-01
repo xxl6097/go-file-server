@@ -5,7 +5,7 @@ import (
 	"bytes"
 	"errors"
 	goplist "github.com/fork2fix/go-plist"
-	"github.com/xxl6097/go-serverfile/internal/model"
+	"github.com/xxl6097/go-file-server/internal/model"
 	"io"
 	"io/ioutil"
 	"net/url"

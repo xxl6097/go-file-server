@@ -5,7 +5,7 @@ import (
 	"encoding/json"
 	"github.com/codeskyblue/openid-go"
 	"github.com/gorilla/sessions"
-	"github.com/xxl6097/go-serverfile/internal/model"
+	"github.com/xxl6097/go-file-server/internal/model"
 	"io"
 	"log"
 	"net/http"

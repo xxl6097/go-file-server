@@ -5,7 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/gorilla/mux"
-	"github.com/xxl6097/go-serverfile/pkg/file"
+	"github.com/xxl6097/go-file-server/pkg/file"
 	"io/ioutil"
 	"log"
 	"mime"

@@ -5,7 +5,7 @@ import (
 	"bytes"
 	"fmt"
 	dkignore "github.com/codeskyblue/dockerignore"
-	"github.com/xxl6097/go-serverfile/internal/args"
+	"github.com/xxl6097/go-file-server/internal/args"
 	"golang.org/x/text/encoding/simplifiedchinese"
 	"io"
 	"io/ioutil"

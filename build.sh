@@ -4,7 +4,7 @@ appname=GoFileServer
 DisplayName=基于Golang文件管理器
 Description="做最好的HTTP文件服务器，人性化的UI体验，文件的上传支持，安卓和苹果安装包的二维码直接生成。"
 version=0.0.0
-versionDir="github.com/xxl6097/go-serverfile/internal/version"
+versionDir="github.com/xxl6097/go-file-server/internal/version"
 appdir="./cmd/app"
 
 files=""
@@ -37,7 +37,7 @@ function getversion() {
 
 function github_release() {
     # 配置变量
-    REPO="xxl6097/go-serverfile"  # 替换为你的GitHub仓库
+    REPO="xxl6097/go-file-server"  # 替换为你的GitHub仓库
     TAG="${version}"  # 替换为你的标签
     RELEASE_NAME="${version}"  # 替换为你的发布名称
     DESCRIPTION="This is the release description."  # 替换为你的发布描述
@@ -121,8 +121,8 @@ function build_win() {
   rm -rf ${appdir}/resource.syso
   echo "编译完成 ${distDir}"
   #go generate ./cmd/app
-  #CGO_ENABLED=0 GOOS=windows GOARCH=amd64 go build -ldflags "-s -w -linkmode internal" -o ./dist/go-serverfile.exe ./cmd/app
-  #CGO_ENABLED=0 GOOS=windows GOARCH=amd64 go build -ldflags "-s -w -linkmode internal" -o /Volumes/Desktop/go-serverfile.exe ./cmd/app
+  #CGO_ENABLED=0 GOOS=windows GOARCH=amd64 go build -ldflags "-s -w -linkmode internal" -o ./dist/go-file-server.exe ./cmd/app
+  #CGO_ENABLED=0 GOOS=windows GOARCH=amd64 go build -ldflags "-s -w -linkmode internal" -o /Volumes/Desktop/go-file-server.exe ./cmd/app
 }
 
 

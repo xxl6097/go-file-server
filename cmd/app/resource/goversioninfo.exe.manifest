@@ -5,7 +5,7 @@
     name="Github.com.JosephSpurrier.GoVersionInfo"
     version="1.0.0.0"
     processorArchitecture="*"/>
- <description>Go-ServerFile Application</description>
+ <description>go-file-server Application</description>
  <trustInfo xmlns="urn:schemas-microsoft-com:asm.v3">
    <security>
      <requestedPrivileges>

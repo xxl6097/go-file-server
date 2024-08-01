@@ -26,7 +26,7 @@ func Version() {
 		fmt.Printf("Git branch:\t%s\n", GitBranch)
 		fmt.Printf("Golang Version: %s\n", GoVersion)
 	} else {
-		AppName = "go-serverfile"
+		AppName = "go-file-server"
 		AppVersion = "v0.0.0"
 		BuildVersion = "v0.0.0"
 		BuildTime = time.Now().Format("2006-01-02 15:04:05")

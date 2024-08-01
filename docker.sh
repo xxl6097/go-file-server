@@ -1,7 +1,7 @@
 #!/bin/bash
 appname=GoFileServer
 version=0.0.0
-versionDir="github.com/xxl6097/go-serverfile/internal/version"
+versionDir="github.com/xxl6097/go-file-server/internal/version"
 appdir="./cmd/app"
 
 function getversion() {

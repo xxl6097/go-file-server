@@ -14,6 +14,6 @@ services:
       - UMASK=022
     privileged: true
     user: root
-    container_name: go-serverfile
-    image: 'uuxia.cn:8085/xxl6097/go-serverfile:latest'
+    container_name: go-file-server
+    image: 'uuxia.cn:8085/xxl6097/go-file-server:latest'
 

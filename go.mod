@@ -1,4 +1,4 @@
-module github.com/xxl6097/go-serverfile
+module github.com/xxl6097/go-file-server
 
 go 1.22
 

@@ -1,9 +1,9 @@
 package server
 
 import (
-	"github.com/xxl6097/go-serverfile/internal/access"
-	"github.com/xxl6097/go-serverfile/internal/args"
-	"github.com/xxl6097/go-serverfile/pkg/file"
+	"github.com/xxl6097/go-file-server/internal/access"
+	"github.com/xxl6097/go-file-server/internal/args"
+	"github.com/xxl6097/go-file-server/pkg/file"
 	"gopkg.in/yaml.v2"
 	"io/ioutil"
 	"log"

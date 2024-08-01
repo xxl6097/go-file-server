@@ -1,8 +1,8 @@
 package server
 
 import (
-	"github.com/xxl6097/go-serverfile/internal/assets"
-	"github.com/xxl6097/go-serverfile/pkg/html"
+	"github.com/xxl6097/go-file-server/internal/assets"
+	"github.com/xxl6097/go-file-server/pkg/html"
 	"html/template"
 	"net/http"
 	"path/filepath"
