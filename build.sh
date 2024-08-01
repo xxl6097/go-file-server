@@ -116,10 +116,13 @@ function build_win() {
   arch=$2
   distDir=./dist/${appname}_${version}_${os}_${arch}.exe
   go generate ${appdir}
-  echo "编译 CGO_ENABLED=0 GOOS=${os} GOARCH=${arch} go build -ldflags "$ldflags -s -w -linkmode internal" -o ${distDir} ${appdir}"
+  #echo "编译 CGO_ENABLED=0 GOOS=${os} GOARCH=${arch} go build -ldflags "$ldflags -s -w -linkmode internal" -o ${distDir} ${appdir}"
   CGO_ENABLED=0 GOOS=${os} GOARCH=${arch} go build -ldflags "$ldflags -s -w -linkmode internal" -o ${distDir} ${appdir}
   rm -rf ${appdir}/resource.syso
   echo "编译完成 ${distDir}"
+  #go generate ./cmd/app
+  #CGO_ENABLED=0 GOOS=windows GOARCH=amd64 go build -ldflags "-s -w -linkmode internal" -o ./dist/go-serverfile.exe ./cmd/app
+  #CGO_ENABLED=0 GOOS=windows GOARCH=amd64 go build -ldflags "-s -w -linkmode internal" -o /Volumes/Desktop/go-serverfile.exe ./cmd/app
 }
 
 

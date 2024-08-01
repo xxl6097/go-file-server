@@ -17,16 +17,16 @@
     "FileSubType": "00"
   },
   "StringFileInfo": {
-    "Comments": "goserverfile",
+    "Comments": "go-serverfile",
     "CompanyName": "uuxia tech Co., Ltd",
     "FileDescription": "基于Golang文件管理器",
     "FileVersion": "v0.3.7",
-    "InternalName": "goserverfile.exe",
+    "InternalName": "go-serverfile.exe",
     "LegalCopyright": "© uuxia.cn 2024.06.20",
     "LegalTrademarks": "",
-    "OriginalFilename": "goserverfile.exe",
+    "OriginalFilename": "go-serverfile.exe",
     "PrivateBuild": "",
-    "ProductName": "goserverfile",
+    "ProductName": "go-serverfile",
     "ProductVersion": "v0.0.1",
     "SpecialBuild": "v0.0.1"
   },
