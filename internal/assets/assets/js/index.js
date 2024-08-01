@@ -274,6 +274,13 @@ var vm = new Vue({
           return "fa-android";
         case "exe":
           return "fa-windows";
+        case "md":
+          return "fa-user-md";
+        case "sql":
+        case "db":
+          return "fa-database";
+        case "key":
+          return "fa-key";
       }
       if (f.name.includes('darwin')){
         return "fa-apple";
