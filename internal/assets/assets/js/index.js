@@ -242,9 +242,18 @@ var vm = new Vue({
         case "cpp":
         case "h":
           return "fa-file-code-o";
+        case "doc":
+        case "docx":
+          return "fa-file-word-o";
+        case "xlsx":
+          return "fa-file-excel-o";
+        case "ppt":
+        case "pptx":
+          return "fa-file-powerpoint-o";
         case "pdf":
           return "fa-file-pdf-o";
         case "zip":
+        case "rar":
           return "fa-file-zip-o";
         case "mp3":
         case "wav":
@@ -258,10 +267,18 @@ var vm = new Vue({
         case "ipa":
         case "dmg":
           return "fa-apple";
+        case "mp4":
+        case "mov":
+          return "fa-file-video-o";
         case "apk":
           return "fa-android";
         case "exe":
           return "fa-windows";
+      }
+      if (f.name.includes('darwin')){
+        return "fa-apple";
+      }else if (f.name.includes('linux')){
+        return "fa-linux"
       }
       return "fa-file-text-o"
     },
