@@ -236,8 +236,8 @@ var vm = new Vue({
       switch (ext) {
         case "go":
         case "py":
-        case "js":
         case "java":
+        case "js":
         case "c":
         case "cpp":
         case "h":
@@ -254,6 +254,10 @@ var vm = new Vue({
           return "fa-file-pdf-o";
         case "zip":
         case "rar":
+        case "gz":
+        case "tar":
+        case "tgz":
+        case "7z":
           return "fa-file-zip-o";
         case "mp3":
         case "wav":
@@ -274,13 +278,17 @@ var vm = new Vue({
           return "fa-android";
         case "exe":
           return "fa-windows";
-        case "md":
-          return "fa-user-md";
         case "sql":
         case "db":
           return "fa-database";
         case "key":
           return "fa-key";
+        case "txt":
+          return "fa-file-text";
+        case "css":
+          return "fa-css3";
+        case "html":
+          return "fa-html5";
       }
       if (f.name.includes('darwin')){
         return "fa-apple";
