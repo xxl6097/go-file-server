@@ -23,6 +23,7 @@ type Release struct {
 		Name        string `json:"name"`
 		DownloadURL string `json:"browser_download_url"`
 	} `json:"assets"`
+	Body string `json:"body"`
 }
 
 func FrpcDown(path string) {
