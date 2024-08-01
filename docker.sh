@@ -1,5 +1,5 @@
 #!/bin/bash
-appname=go-serverfile
+appname=GoFileServer
 version=0.0.0
 versionDir="github.com/xxl6097/go-serverfile/internal/version"
 appdir="./cmd/app"
