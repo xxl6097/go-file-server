@@ -374,6 +374,7 @@ var vm = new Vue({
           method: "GET",
           success: function (res) {
             showToast(f.name + ' Unzip Sucess')
+            loadFileList()
             hideLoding()
           },
           error: function (jqXHR, textStatus, errorThrown) {
