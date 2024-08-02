@@ -430,7 +430,7 @@ func (f *FileServer) hUploadOrMkdir(w http.ResponseWriter, req *http.Request) {
 	w.Header().Set("Content-Type", "application/json;charset=utf-8")
 
 	if req.FormValue("unzip") == "true" {
-		err = zip.UnzipFile(dstPath, dirpath)
+		err = zip.UnPack(dstPath, dirpath)
 		os.Remove(dstPath)
 		message := "success"
 		if err != nil {
@@ -481,7 +481,7 @@ func (f *FileServer) hIndex(w http.ResponseWriter, r *http.Request) {
 	if r.FormValue("unzip") == "true" {
 		log.Println(realPath)
 		dirpath, _ := filepath.Split(realPath)
-		err := zip.UnzipFile(realPath, dirpath)
+		err := zip.UnPack(realPath, dirpath)
 		log.Println(realPath, err)
 		//os.Remove(dstPath)
 		//message := "success"

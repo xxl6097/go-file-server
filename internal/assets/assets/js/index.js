@@ -321,6 +321,7 @@ var vm = new Vue({
       var ext = getExtention(f.name);
       switch (ext) {
         case "zip":
+        case "gz":
           return true;
       }
       return false;

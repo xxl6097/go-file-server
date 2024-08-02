@@ -229,3 +229,9 @@ func GetPathFirst(path string) string {
 	}
 	return ""
 }
+
+func GetFileName(path string) string {
+	filenameWithExt := filepath.Base(path)
+	filename := strings.TrimSuffix(filenameWithExt, filepath.Ext(filenameWithExt))
+	return filename
+}

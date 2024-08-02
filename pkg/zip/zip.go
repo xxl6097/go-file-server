@@ -1,14 +1,17 @@
 package zip
 
 import (
+	"archive/tar"
 	"archive/zip"
 	"bytes"
+	"compress/gzip"
 	"fmt"
 	dkignore "github.com/codeskyblue/dockerignore"
 	"github.com/xxl6097/go-file-server/internal/args"
 	"golang.org/x/text/encoding/simplifiedchinese"
 	"io"
 	"io/ioutil"
+	"log"
 	"net/http"
 	"os"
 	"path/filepath"
@@ -19,6 +22,78 @@ import (
 
 type Zip struct {
 	*zip.Writer
+}
+
+func UnPack(filename, dest string) error {
+	ext := filepath.Ext(filename)
+	switch ext {
+	case ".zip":
+		return UnzipFile(filename, dest)
+	case ".gz":
+		return UnTarGzFile(filename, dest)
+	}
+	return nil
+}
+
+func UnTarGzFile(filename, dest string) error {
+	file, err := os.Open(filename)
+	if err != nil {
+		return err
+	}
+	defer file.Close()
+
+	if dest == "" {
+		dest = filepath.Dir(filename)
+	}
+
+	// 创建 gzip.Reader
+	gzipReader, err := gzip.NewReader(file)
+	if err != nil {
+		return err
+	}
+	defer gzipReader.Close()
+
+	// 创建 tar.Reader
+	tarReader := tar.NewReader(gzipReader)
+
+	// 解压 tar 包中的文件
+	for {
+		header, err := tarReader.Next()
+		if err == io.EOF {
+			break // 读取完所有文件
+		}
+		if err != nil {
+			return err
+		}
+
+		// 获取文件信息
+		path := filepath.Join(dest, header.Name)
+		info := header.FileInfo()
+
+		// 创建目录或文件
+		if info.IsDir() {
+			if err := os.MkdirAll(path, info.Mode()); err != nil {
+				return err
+			}
+		} else {
+			dir := filepath.Dir(path)
+			if err := os.MkdirAll(dir, os.ModePerm); err != nil {
+				return err
+			}
+			outFile, err := os.OpenFile(path, os.O_CREATE|os.O_RDWR, info.Mode())
+			if err != nil {
+				return err
+			}
+			if _, err := io.Copy(outFile, tarReader); err != nil {
+				outFile.Close()
+				return err
+			}
+			outFile.Close()
+		}
+	}
+
+	log.Println("解压完成")
+	return nil
 }
 
 func UnzipFile(filename, dest string) error {
