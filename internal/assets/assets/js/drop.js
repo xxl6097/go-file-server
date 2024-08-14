@@ -182,7 +182,7 @@ function handleModalDialog() {
     speedEvent = function (speedText,progress){
         progressBar.value = progress;
         $('#upload-speed-id').css('display', 'block');
-        $("#upload-speed-id").text('speed:' + speedText);
+        $("#upload-speed-id").text('speed：' + speedText);
     }
 
     $('#on-upload-ok').off('click');
