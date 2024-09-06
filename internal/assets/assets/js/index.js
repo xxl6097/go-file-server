@@ -567,7 +567,7 @@ var vm = new Vue({
     checkDirectory: function (callback) {
       var that = this
       this.checkToken((token)=>{
-        var directory = window.prompt("current path: " + location.pathname + "\nplease enter the directory", "")
+        var directory = window.prompt("current path: " + location.pathname + "\nplease enter the directory(input ok back)", "")
         console.log('onShowDirClick',directory)
         if (!directory) {
           return
