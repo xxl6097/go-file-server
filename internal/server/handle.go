@@ -227,6 +227,9 @@ func (f *FileServer) hDelete(w http.ResponseWriter, req *http.Request) {
 }
 func (f *FileServer) hUpload(w http.ResponseWriter, r *http.Request) {
 	dirpath := f.getRealPath(r)
+	if dirpath == "." || dirpath == "/data/files" {
+		dirpath = file2.GetDirByDate()
+	}
 	// check auth
 	auth := f.readAccessConf(dirpath)
 	if !auth.CanUpload(r) {
@@ -284,7 +287,7 @@ func (f *FileServer) hUpload(w http.ResponseWriter, r *http.Request) {
 		defer func() {
 			file.Close()
 		}()
-		log.Println(fileName, fileSize)
+		log.Println(dirpath, fileName, fileSize)
 		if err1 := file2.CheckFilename(fileName); err1 != nil {
 			http.Error(w, err1.Error(), http.StatusForbidden)
 			return

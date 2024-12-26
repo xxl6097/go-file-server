@@ -139,6 +139,10 @@ func GetFileNameWithTime() string {
 	return GetTimeFormat("20060102150405")
 }
 
+func GetDirByDate() string {
+	return GetTimeFormat("2006/01/02")
+}
+
 func GetTimeFormat(format string) string {
 	const timezone = "Asia/Shanghai"
 	location, err := time.LoadLocation(timezone)
